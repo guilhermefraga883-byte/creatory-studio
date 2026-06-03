@@ -725,16 +725,15 @@ function salvarKey(tipo){
   if(!v){toast('⚠️ Cole a chave antes de salvar');return;}
   localStorage.setItem('creatory_key_'+tipo,v);
   el.value='';
-  el.placeholder=(tipo==='ant'?'sk-ant-':'pplx-')+'... (salva ✓)';
+  el.placeholder='sk-ant-... (salva ✓)';
   atualizarStatus();
-  toast('✅ Chave '+(tipo==='ant'?'Anthropic':'Perplexity')+' salva!');
+  toast('✅ Chave Anthropic salva!');
 }
 
 function atualizarStatus(){
-  const ant=getKey('ant');const pplx=getKey('pplx');
+  const ant=getKey('ant');
   const st=document.getElementById('api-status');
-  if(ant&&pplx){st.textContent='✅ Ambas as chaves configuradas — pronto para gerar!';st.className='api-status ok';}
-  else if(ant){st.textContent='✅ Anthropic OK · ⚠️ Perplexity não configurada (temas em alta desativados)';st.className='api-status ok';}
+  if(ant){st.textContent='✅ Chave configurada — pronto para gerar!';st.className='api-status ok';}
   else{st.textContent='⚠️ Configure a chave Anthropic para gerar conteúdo.';st.className='api-status';}
 }
 
@@ -796,7 +795,6 @@ function selectTom(el){
 
 async function buscarTemas(){
   const ant=getKey('ant');
-  if(!ant){toast('⚠️ Configure a chave Anthropic primeiro');return;}
   const btn=document.getElementById('tema-btn');
   btn.textContent='Buscando...';btn.disabled=true;
   const grid=document.getElementById('temas-grid');
@@ -943,9 +941,7 @@ function abrirGPT(){
 }
 
 window.addEventListener('load',()=>{
-  ['ant','pplx'].forEach(k=>{
-    if(getKey(k))document.getElementById('key-'+k).placeholder=(k==='ant'?'sk-ant-':'pplx-')+'... (salva ✓)';
-  });
+  if(getKey('ant'))document.getElementById('key-ant').placeholder='sk-ant-... (salva ✓)';
   atualizarStatus();
   document.getElementById('topic-input').addEventListener('input',function(){
     const h=document.getElementById('topic-hint');

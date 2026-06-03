@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CREATORY Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orange:#F27507;--orange2:#D95204;
+  --black:#080808;--dark:#111;--dark2:#161616;--dark3:#1e1e1e;
+  --text:#efefef;--text2:#888;--text3:#555;
+  --border:rgba(255,255,255,0.07);--surf:rgba(255,255,255,0.03);--surf2:rgba(255,255,255,0.06);
+  --green:#22c55e;
+}
+body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh}
+.wrap{max-width:740px;margin:0 auto;padding:2rem 1.25rem 5rem}
+
+.header{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.4rem;background:var(--dark2);border-radius:14px;margin-bottom:1.75rem;border:0.5px solid var(--border)}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--orange),var(--orange2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo-text{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;letter-spacing:.07em;color:#fff}
+.logo-text span{background:linear-gradient(135deg,#F27507,#D95204);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-sub{font-size:9.5px;color:#555;letter-spacing:.14em;text-transform:uppercase;margin-top:1px}
+.badge{font-size:9.5px;padding:3px 9px;border-radius:999px;background:rgba(242,117,7,.1);color:var(--orange);border:.5px solid rgba(242,117,7,.3);font-weight:800;letter-spacing:.06em}
+
+.api-block{background:rgba(242,117,7,.04);border:.5px solid rgba(242,117,7,.2);border-radius:12px;padding:.9rem 1.1rem;margin-bottom:1.75rem}
+.api-title{font-size:10px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.65rem}
+.api-row{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.api-label{font-size:11px;color:var(--text2);width:82px;flex-shrink:0}
+.api-input{flex:1;background:rgba(0,0,0,.4);border:.5px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:12px;font-family:'Barlow',sans-serif;outline:none}
+.api-input:focus{border-color:rgba(242,117,7,.4)}
+.api-save{padding:7px 14px;background:var(--orange);border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+.api-save:hover{background:var(--orange2)}
+.api-status{font-size:10.5px;margin-top:5px;color:var(--text3)}
+.api-status.ok{color:var(--green)}
+
+.step{margin-bottom:1.6rem}
+.step-head{display:flex;align-items:center;gap:10px;margin-bottom:.75rem}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;flex-shrink:0}
+.step-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+
+.topic-box{background:var(--dark2);border:.5px solid var(--border);border-radius:12px;padding:1rem}
+.topic-input{width:100%;background:transparent;border:none;color:var(--text);font-size:14px;font-family:'Barlow',sans-serif;resize:none;outline:none;min-height:60px;line-height:1.5}
+.topic-input::placeholder{color:var(--text3)}
+.topic-footer{display:flex;align-items:center;justify-content:space-between;margin-top:.6rem;padding-top:.6rem;border-top:.5px solid var(--border)}
+.topic-hint{font-size:11px;color:var(--text3)}
+.btn-temas{padding:6px 14px;background:var(--surf2);border:.5px solid var(--border);border-radius:8px;color:var(--text);font-size:11px;font-weight:700;cursor:pointer}
+.btn-temas:hover{border-color:var(--orange);color:var(--orange)}
+.temas-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.temas-grid.hidden{display:none}
+.tema-item{background:var(--surf);border:.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;cursor:pointer;line-height:1.4;color:var(--text2)}
+.tema-item:hover{border-color:var(--orange);color:var(--text)}
+
+.fmt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.fmt-card{background:var(--dark2);border:.5px solid var(--border);border-radius:10px;padding:.75rem .5rem;text-align:center;cursor:pointer;transition:all .2s}
+.fmt-card:hover{border-color:rgba(242,117,7,.4)}
+.fmt-card.active{background:rgba(242,117,7,.08);border-color:var(--orange)}
+.fmt-icon{font-size:20px;margin-bottom:4px}
+.fmt-name{font-size:12px;font-weight:800;letter-spacing:.04em}
+.fmt-sub{font-size:10px;color:var(--text3);margin-top:2px}
+
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:6px 13px;background:var(--dark2);border:.5px solid var(--border);border-radius:999px;font-size:11.5px;font-weight:600;cursor:pointer;color:var(--text2)}
+.chip:hover{border-color:rgba(242,117,7,.4);color:var(--text)}
+.chip.active{background:rgba(242,117,7,.1);border-color:var(--orange);color:var(--orange)}
+
+/* MODEL CARDS COM IMAGEM */
+.models-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.model-card{background:var(--dark2);border:.5px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s}
+.model-card:hover{border-color:rgba(242,117,7,.4);transform:translateY(-2px)}
+.model-card.active{border-color:var(--orange);background:rgba(242,117,7,.06)}
+.model-thumb{height:82px;position:relative;overflow:hidden;background:var(--dark3)}
+.model-thumb svg{width:100%;height:100%}
+.model-info{padding:8px 10px 10px}
+.model-name{font-size:11.5px;font-weight:800;letter-spacing:.03em}
+.model-desc{font-size:10px;color:var(--text3);margin-top:2px;line-height:1.4}
+.model-tag{display:inline-block;font-size:8.5px;font-weight:800;padding:2px 6px;border-radius:4px;margin-top:4px;letter-spacing:.05em;text-transform:uppercase}
+.model-tag.viral{background:rgba(242,117,7,.15);color:var(--orange)}
+.model-tag.fraga{background:rgba(255,255,255,.06);color:var(--text3)}
+
+.toms{display:flex;flex-wrap:wrap;gap:7px}
+.tom{padding:5px 12px;background:var(--dark2);border:.5px solid var(--border);border-radius:999px;font-size:11px;font-weight:600;cursor:pointer;color:var(--text2)}
+.tom:hover{border-color:rgba(242,117,7,.4);color:var(--text)}
+.tom.active{background:rgba(242,117,7,.1);border-color:var(--orange);color:var(--orange)}
+
+.gen-btn{width:100%;padding:1rem;background:linear-gradient(135deg,var(--orange),var(--orange2));border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:900;letter-spacing:.06em;cursor:pointer;margin-top:.5rem;text-transform:uppercase;transition:opacity .2s}
+.gen-btn:hover{opacity:.9}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.result-box{background:var(--dark2);border:.5px solid rgba(242,117,7,.3);border-radius:14px;padding:1.25rem;margin-top:1.5rem;display:none}
+.result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem}
+.result-title{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--orange)}
+.result-badge{font-size:9px;padding:3px 8px;border-radius:999px;background:rgba(34,197,94,.1);color:var(--green);border:.5px solid rgba(34,197,94,.3);font-weight:800;letter-spacing:.06em}
+.result-content{font-size:13.5px;line-height:1.75;color:var(--text);white-space:pre-wrap;border-top:.5px solid var(--border);padding-top:.9rem}
+.result-actions{display:flex;gap:8px;margin-top:1rem}
+.act-btn{flex:1;padding:.6rem;background:var(--surf2);border:.5px solid var(--border);border-radius:8px;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer}
+.act-btn:hover{border-color:rgba(242,117,7,.4);color:var(--text)}
+.act-gpt{background:rgba(242,117,7,.1);border-color:rgba(242,117,7,.3);color:var(--orange)}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark2);border:.5px solid var(--border);border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="header">
+  <div class="logo-row">
+    <div class="logo-icon">🎬</div>
+    <div>
+      <div class="logo-text">CREAT<span>O</span>RY <span>STUDIO</span></div>
+      <div class="logo-sub">Silvano Formentin · Italiano</div>
+    </div>
+  </div>
+  <div class="badge">v2.2</div>
+</div>
+
+<div class="api-block">
+  <div class="api-title">🔑 Chaves de API</div>
+  <div class="api-row">
+    <span class="api-label">Anthropic</span>
+    <input class="api-input" id="key-ant" type="password" placeholder="sk-ant-...">
+    <button class="api-save" onclick="salvarKey('ant')">Salvar</button>
+  </div>
+
+  <div class="api-status" id="api-status">Chaves ficam salvas no navegador.</div>
+</div>
+
+<!-- STEP 1 -->
+<div class="step">
+  <div class="step-head"><div class="step-num">1</div><div class="step-title">Sobre o que vai ser?</div></div>
+  <div class="topic-box">
+    <textarea class="topic-input" id="topic-input" placeholder="Ex: por que aprender italiano muda completamente sua viagem para a Itália..."></textarea>
+    <div class="topic-footer">
+      <span class="topic-hint" id="topic-hint">Escreva o tema ou busque sugestões em alta</span>
+      <button class="btn-temas" id="tema-btn" onclick="buscarTemas()">✦ Temas em alta</button>
+    </div>
+    <div class="temas-grid hidden" id="temas-grid"></div>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="step">
+  <div class="step-head"><div class="step-num">2</div><div class="step-title">Qual formato?</div></div>
+  <div class="fmt-grid">
+    <div class="fmt-card active" data-val="reels" onclick="selectFormat(this)"><div class="fmt-icon">🎬</div><div class="fmt-name">Reels</div><div class="fmt-sub">TikTok / Reels</div></div>
+    <div class="fmt-card" data-val="carrossel" onclick="selectFormat(this)"><div class="fmt-icon">🎠</div><div class="fmt-name">Carrossel</div><div class="fmt-sub">Instagram</div></div>
+    <div class="fmt-card" data-val="stories" onclick="selectFormat(this)"><div class="fmt-icon">📱</div><div class="fmt-name">Stories</div><div class="fmt-sub">Sequência</div></div>
+    <div class="fmt-card" data-val="post" onclick="selectFormat(this)"><div class="fmt-icon">📸</div><div class="fmt-name">Post</div><div class="fmt-sub">Estático</div></div>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="step">
+  <div class="step-head"><div class="step-num">3</div><div class="step-title" id="obj-title">Qual o objetivo?</div></div>
+  <div class="chips" id="obj-chips"></div>
+</div>
+
+<!-- STEP 4 -->
+<div class="step">
+  <div class="step-head"><div class="step-num">4</div><div class="step-title">Escolha o modelo</div></div>
+  <div class="models-grid" id="mod-grid"></div>
+</div>
+
+<!-- STEP 5 -->
+<div class="step">
+  <div class="step-head"><div class="step-num">5</div><div class="step-title">Tom de voz</div></div>
+  <div class="toms">
+    <div class="tom active" data-val="inspiracional" onclick="selectTom(this)">Inspiracional</div>
+    <div class="tom" data-val="educativo" onclick="selectTom(this)">Educativo</div>
+    <div class="tom" data-val="provocador" onclick="selectTom(this)">Provocador</div>
+    <div class="tom" data-val="emocional" onclick="selectTom(this)">Emocional</div>
+    <div class="tom" data-val="divertido" onclick="selectTom(this)">Divertido</div>
+    <div class="tom" data-val="autoritativo" onclick="selectTom(this)">Autoritativo</div>
+  </div>
+</div>
+
+<button class="gen-btn" id="gen-btn" onclick="gerar()">▶ GERAR CONTEÚDO</button>
+
+<div class="result-box" id="result-box">
+  <div class="result-header">
+    <span class="result-title" id="result-title">Conteúdo</span>
+    <span class="result-badge">✓ PRONTO PARA VALIDAR</span>
+  </div>
+  <div class="result-content" id="result-content"></div>
+  <div class="result-actions">
+    <button class="act-btn" onclick="gerar()">↻ Gerar outro</button>
+    <button class="act-btn" onclick="copiar()">⎘ Copiar texto</button>
+    <button class="act-btn act-gpt" id="gpt-btn" onclick="abrirGPT()">✦ Criar no GPT</button>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const S={format:'reels',objetivo:'engajamento',modelo:'tela_dividida',tom:'inspiracional'};
+
+// SVG THUMBS por modelo
+const THUMBS={
+  tela_dividida:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#111"/>
+    <rect x="0" y="0" width="160" height="41" fill="#1a1a2e"/>
+    <rect x="8" y="6" width="60" height="30" rx="3" fill="#252545"/>
+    <rect x="76" y="6" width="76" height="30" rx="3" fill="#1e1e3a"/>
+    <circle cx="38" cy="21" r="8" fill="#333355"/>
+    <rect x="80" y="12" width="48" height="3" rx="1.5" fill="#444466"/>
+    <rect x="80" y="19" width="36" height="3" rx="1.5" fill="#333355"/>
+    <rect x="80" y="26" width="42" height="3" rx="1.5" fill="#333355"/>
+    <rect x="0" y="41" width="160" height="1" fill="#F27507" opacity="0.5"/>
+    <rect x="8" y="48" width="100" height="3" rx="1.5" fill="#333"/>
+    <rect x="8" y="55" width="80" height="3" rx="1.5" fill="#2a2a2a"/>
+    <rect x="8" y="62" width="90" height="3" rx="1.5" fill="#2a2a2a"/>
+    <rect x="8" y="69" width="60" height="7" rx="3" fill="#F27507" opacity="0.7"/>
+  </svg>`,
+
+  tela_verde:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0a1a0a"/>
+    <rect x="0" y="0" width="160" height="82" fill="#0d2b0d"/>
+    <ellipse cx="80" cy="50" rx="55" ry="38" fill="#1a3d1a" opacity="0.6"/>
+    <rect x="30" y="10" width="100" height="55" rx="4" fill="#0f2e0f" opacity="0.5"/>
+    <circle cx="80" cy="38" r="16" fill="#1e4d1e"/>
+    <rect x="40" y="58" width="80" height="3" rx="1.5" fill="#2a5a2a"/>
+    <rect x="50" y="64" width="60" height="3" rx="1.5" fill="#235023"/>
+    <rect x="55" y="72" width="50" height="6" rx="3" fill="#F27507" opacity="0.8"/>
+    <text x="80" y="76.5" text-anchor="middle" fill="white" font-size="5" font-family="sans-serif" font-weight="bold">TELA VERDE</text>
+  </svg>`,
+
+  caixinha:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#111"/>
+    <rect x="20" y="8" width="120" height="66" rx="12" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+    <circle cx="80" cy="28" r="10" fill="#2a2a2a"/>
+    <rect x="35" y="42" width="90" height="4" rx="2" fill="#F27507" opacity="0.8"/>
+    <rect x="25" y="50" width="110" height="18" rx="6" fill="#222" stroke="#F27507" stroke-width="0.8" opacity="0.6"/>
+    <rect x="32" y="56" width="70" height="3" rx="1.5" fill="#444"/>
+    <text x="80" y="27" text-anchor="middle" fill="#F27507" font-size="8" font-family="sans-serif">?</text>
+    <text x="80" y="47" text-anchor="middle" fill="#F27507" font-size="5" font-family="sans-serif" font-weight="bold">CAIXINHA</text>
+  </svg>`,
+
+  storytelling:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#110a05"/>
+    <rect x="0" y="0" width="160" height="82" fill="url(#story_grad)"/>
+    <defs>
+      <linearGradient id="story_grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#1a0e05"/>
+        <stop offset="100%" stop-color="#0d0a12"/>
+      </linearGradient>
+    </defs>
+    <circle cx="40" cy="35" r="18" fill="#2a1a0a"/>
+    <circle cx="40" cy="28" r="7" fill="#3d2510"/>
+    <path d="M25 48 Q40 38 55 48" fill="#3d2510"/>
+    <rect x="65" y="15" width="80" height="4" rx="2" fill="#3d2010"/>
+    <rect x="65" y="24" width="65" height="3" rx="1.5" fill="#2d1a0a"/>
+    <rect x="65" y="32" width="72" height="3" rx="1.5" fill="#2d1a0a"/>
+    <rect x="65" y="40" width="58" height="3" rx="1.5" fill="#2d1a0a"/>
+    <rect x="10" y="58" width="140" height="1" fill="#F27507" opacity="0.3"/>
+    <rect x="10" y="63" width="110" height="3" rx="1.5" fill="#2d1a0a"/>
+    <rect x="10" y="70" width="80" height="3" rx="1.5" fill="#2d1a0a"/>
+  </svg>`,
+
+  palestrinha:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0a0a14"/>
+    <rect x="55" y="5" width="100" height="72" rx="4" fill="#12122a"/>
+    <rect x="60" y="10" width="90" height="55" rx="3" fill="#1a1a3a"/>
+    <rect x="65" y="15" width="80" height="6" rx="2" fill="#F27507" opacity="0.6"/>
+    <rect x="65" y="25" width="60" height="3" rx="1.5" fill="#333355"/>
+    <rect x="65" y="31" width="70" height="3" rx="1.5" fill="#333355"/>
+    <rect x="65" y="37" width="50" height="3" rx="1.5" fill="#333355"/>
+    <rect x="65" y="46" width="80" height="12" rx="3" fill="#1e1e40"/>
+    <rect x="68" y="49" width="35" height="2.5" rx="1" fill="#444466"/>
+    <rect x="68" y="54" width="50" height="2.5" rx="1" fill="#444466"/>
+    <circle cx="30" cy="41" r="14" fill="#1a1a2e"/>
+    <circle cx="30" cy="34" r="6" fill="#252545"/>
+    <path d="M18 52 Q30 44 42 52" fill="#252545"/>
+    <rect x="10" y="68" width="40" height="8" rx="4" fill="#F27507" opacity="0.7"/>
+  </svg>`,
+
+  comparacao:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#111"/>
+    <rect x="4" y="4" width="72" height="74" rx="6" fill="#1a0a0a"/>
+    <rect x="84" y="4" width="72" height="74" rx="6" fill="#0a1a0a"/>
+    <text x="40" y="22" text-anchor="middle" fill="#ef4444" font-size="14" font-family="sans-serif">✗</text>
+    <text x="120" y="22" text-anchor="middle" fill="#22c55e" font-size="14" font-family="sans-serif">✓</text>
+    <rect x="10" y="28" width="60" height="3" rx="1.5" fill="#3d1a1a"/>
+    <rect x="10" y="34" width="45" height="3" rx="1.5" fill="#3d1a1a"/>
+    <rect x="10" y="40" width="55" height="3" rx="1.5" fill="#3d1a1a"/>
+    <rect x="90" y="28" width="60" height="3" rx="1.5" fill="#1a3d1a"/>
+    <rect x="90" y="34" width="45" height="3" rx="1.5" fill="#1a3d1a"/>
+    <rect x="90" y="40" width="55" height="3" rx="1.5" fill="#1a3d1a"/>
+    <rect x="78" y="4" width="4" height="74" fill="#F27507" opacity="0.5"/>
+  </svg>`,
+
+  bastidores:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0d0d0d"/>
+    <rect x="8" y="8" width="90" height="56" rx="4" fill="#1a1a1a"/>
+    <circle cx="53" cy="36" r="16" fill="#252525"/>
+    <circle cx="53" cy="36" r="6" fill="#F27507" opacity="0.6"/>
+    <rect x="106" y="8" width="46" height="26" rx="3" fill="#1a1a1a"/>
+    <rect x="110" y="12" width="38" height="18" rx="2" fill="#222"/>
+    <rect x="106" y="38" width="46" height="26" rx="3" fill="#1a1a1a"/>
+    <rect x="110" y="42" width="38" height="18" rx="2" fill="#222"/>
+    <rect x="8" y="68" width="144" height="6" rx="3" fill="#1a1a1a"/>
+    <rect x="10" y="70" width="60" height="2" rx="1" fill="#F27507" opacity="0.6"/>
+  </svg>`,
+
+  narrado:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#080818"/>
+    <rect x="0" y="0" width="160" height="82" fill="url(#narr_grad)"/>
+    <defs>
+      <linearGradient id="narr_grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#0d0d2a"/>
+        <stop offset="100%" stop-color="#050510"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="80" cy="30" rx="35" ry="22" fill="#12124a" opacity="0.6"/>
+    <rect x="20" y="12" width="120" height="40" rx="4" fill="#0d0d3a" opacity="0.4"/>
+    <circle cx="80" cy="32" r="10" fill="#1a1a50"/>
+    <path d="M74 32 L86 32 M80 26 L80 38" stroke="#F27507" stroke-width="1.5" opacity="0.8"/>
+    <rect x="10" y="58" width="140" height="1" fill="#F27507" opacity="0.4"/>
+    <rect x="10" y="63" width="130" height="3" rx="1.5" fill="#1a1a3a"/>
+    <rect x="10" y="70" width="90" height="3" rx="1.5" fill="#15153a"/>
+    <rect x="10" y="77" width="110" height="3" rx="1.5" fill="#15153a"/>
+  </svg>`,
+
+  // CARROSSEL
+  erros:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#110808"/>
+    <rect x="8" y="8" width="144" height="20" rx="4" fill="#2a0a0a"/>
+    <text x="80" y="22" text-anchor="middle" fill="#ef4444" font-size="9" font-family="sans-serif" font-weight="bold">NUNCA FAÇA ISSO</text>
+    <rect x="8" y="32" width="44" height="44" rx="4" fill="#1a0808"/>
+    <rect x="58" y="32" width="44" height="44" rx="4" fill="#1a0808"/>
+    <rect x="108" y="32" width="44" height="44" rx="4" fill="#1a0808"/>
+    <text x="30" y="58" text-anchor="middle" fill="#ef4444" font-size="18">✗</text>
+    <text x="80" y="58" text-anchor="middle" fill="#ef4444" font-size="18">✗</text>
+    <text x="130" y="58" text-anchor="middle" fill="#22c55e" font-size="18">✓</text>
+  </svg>`,
+
+  quiz:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0a0a14"/>
+    <rect x="8" y="8" width="144" height="22" rx="4" fill="#14142a"/>
+    <text x="80" y="23" text-anchor="middle" fill="#F27507" font-size="8" font-family="sans-serif" font-weight="bold">QUAL A PALAVRA CERTA?</text>
+    <rect x="8" y="34" width="44" height="40" rx="6" fill="#1a1a2e" stroke="#333366" stroke-width="1"/>
+    <rect x="58" y="34" width="44" height="40" rx="6" fill="#1a1a2e" stroke="#333366" stroke-width="1"/>
+    <rect x="108" y="34" width="44" height="40" rx="6" fill="#1a1a2e" stroke="#F27507" stroke-width="1"/>
+    <text x="30" y="59" text-anchor="middle" fill="#666" font-size="7" font-family="sans-serif">A</text>
+    <text x="80" y="59" text-anchor="middle" fill="#666" font-size="7" font-family="sans-serif">B</text>
+    <text x="130" y="59" text-anchor="middle" fill="#F27507" font-size="7" font-family="sans-serif">C ✓</text>
+  </svg>`,
+
+  historia:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0d0805"/>
+    <defs>
+      <linearGradient id="hist_grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#1a1005"/>
+        <stop offset="100%" stop-color="#0d0a15"/>
+      </linearGradient>
+    </defs>
+    <rect width="160" height="82" fill="url(#hist_grad)"/>
+    <rect x="8" y="8" width="144" height="45" rx="4" fill="#1a1005" opacity="0.7"/>
+    <text x="80" y="36" text-anchor="middle" fill="#d4a030" font-size="20">🇮🇹</text>
+    <rect x="8" y="57" width="144" height="4" rx="2" fill="#2d1f08"/>
+    <rect x="8" y="65" width="100" height="3" rx="1.5" fill="#2d1f08"/>
+    <rect x="8" y="72" width="80" height="3" rx="1.5" fill="#251a05"/>
+  </svg>`,
+
+  regras:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0a080d"/>
+    <rect x="8" y="6" width="144" height="70" rx="6" fill="#12101a" stroke="#2a2040" stroke-width="1"/>
+    <text x="80" y="28" text-anchor="middle" fill="#8866cc" font-size="16">📜</text>
+    <rect x="20" y="34" width="120" height="3" rx="1.5" fill="#2a2040"/>
+    <rect x="20" y="41" width="90" height="3" rx="1.5" fill="#221c38"/>
+    <rect x="20" y="48" width="100" height="3" rx="1.5" fill="#221c38"/>
+    <rect x="20" y="55" width="75" height="3" rx="1.5" fill="#221c38"/>
+    <rect x="20" y="64" width="120" height="8" rx="4" fill="#F27507" opacity="0.6"/>
+  </svg>`,
+
+  curiosidade:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#080d0a"/>
+    <circle cx="80" cy="35" r="28" fill="#0d1a10" stroke="#1a3020" stroke-width="1"/>
+    <text x="80" y="42" text-anchor="middle" fill="#F27507" font-size="22" font-family="sans-serif" font-weight="bold">?</text>
+    <rect x="15" y="66" width="130" height="3" rx="1.5" fill="#1a2d1a"/>
+    <rect x="25" y="73" width="110" height="3" rx="1.5" fill="#152515"/>
+  </svg>`,
+
+  // STORIES
+  fundo_preto:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#000"/>
+    <rect x="15" y="25" width="130" height="6" rx="3" fill="#fff" opacity="0.9"/>
+    <rect x="25" y="36" width="110" height="4" rx="2" fill="#fff" opacity="0.6"/>
+    <rect x="35" y="46" width="90" height="4" rx="2" fill="#fff" opacity="0.4"/>
+    <rect x="55" y="62" width="50" height="10" rx="5" fill="#F27507" opacity="0.8"/>
+  </svg>`,
+
+  pov:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0a0805"/>
+    <defs>
+      <radialGradient id="pov_g" cx="50%" cy="40%">
+        <stop offset="0%" stop-color="#2a1a0a"/>
+        <stop offset="100%" stop-color="#080605"/>
+      </radialGradient>
+    </defs>
+    <rect width="160" height="82" fill="url(#pov_g)"/>
+    <rect x="8" y="6" width="144" height="55" rx="4" fill="#150f05" opacity="0.5"/>
+    <text x="80" y="38" text-anchor="middle" fill="#c8a060" font-size="18">☕</text>
+    <text x="12" y="18" fill="#F27507" font-size="7" font-family="sans-serif" font-weight="bold">POV</text>
+    <rect x="8" y="65" width="144" height="3" rx="1.5" fill="#2a1a08"/>
+    <rect x="8" y="72" width="100" height="3" rx="1.5" fill="#221508"/>
+  </svg>`,
+
+  video_story:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0d0d0d"/>
+    <circle cx="80" cy="38" r="22" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+    <polygon points="73,28 73,48 93,38" fill="#F27507" opacity="0.8"/>
+    <rect x="8" y="64" width="144" height="3" rx="1.5" fill="#222"/>
+    <rect x="8" y="71" width="100" height="3" rx="1.5" fill="#1a1a1a"/>
+    <rect x="8" y="6" width="40" height="12" rx="4" fill="#F27507" opacity="0.2"/>
+    <text x="28" y="15" text-anchor="middle" fill="#F27507" font-size="6" font-family="sans-serif" font-weight="bold">● REC</text>
+  </svg>`,
+
+  caixinha_s:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#111"/>
+    <rect x="15" y="12" width="130" height="58" rx="10" fill="#1a1a2e" stroke="#2a2a4a" stroke-width="1"/>
+    <text x="80" y="36" text-anchor="middle" fill="#8888cc" font-size="12">💬</text>
+    <rect x="25" y="44" width="110" height="3" rx="1.5" fill="#2a2a4a"/>
+    <rect x="35" y="52" width="90" height="14" rx="4" fill="#22224a" stroke="#3a3a6a" stroke-width="0.8"/>
+    <rect x="40" y="57" width="50" height="2.5" rx="1" fill="#3a3a6a"/>
+  </svg>`,
+
+  enquete:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0a0a14"/>
+    <rect x="15" y="8" width="130" height="20" rx="4" fill="#14142a"/>
+    <text x="80" y="22" text-anchor="middle" fill="#aaaacc" font-size="7" font-family="sans-serif">Qual você prefere?</text>
+    <rect x="15" y="32" width="62" height="28" rx="6" fill="#1e1e40" stroke="#F27507" stroke-width="1"/>
+    <rect x="83" y="32" width="62" height="28" rx="6" fill="#1e1e40" stroke="#333366" stroke-width="0.8"/>
+    <text x="46" y="50" text-anchor="middle" fill="#F27507" font-size="8" font-family="sans-serif" font-weight="bold">A</text>
+    <text x="114" y="50" text-anchor="middle" fill="#666688" font-size="8" font-family="sans-serif">B</text>
+    <rect x="15" y="65" width="62" height="5" rx="2" fill="#F27507" opacity="0.7"/>
+    <rect x="83" y="65" width="25" height="5" rx="2" fill="#333366"/>
+  </svg>`,
+
+  misto:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0d0d0d"/>
+    <rect x="4" y="4" width="35" height="74" rx="4" fill="#000" stroke="#222" stroke-width="1"/>
+    <rect x="45" y="4" width="35" height="35" rx="4" fill="#1a1a2e" stroke="#2a2a4a" stroke-width="1"/>
+    <rect x="45" y="43" width="35" height="35" rx="4" fill="#1a0d00" stroke="#3a2010" stroke-width="1"/>
+    <rect x="86" y="4" width="70" height="35" rx="4" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+    <rect x="86" y="43" width="70" height="35" rx="4" fill="#0a140a" stroke="#1a2a1a" stroke-width="1"/>
+    <rect x="7" y="30" width="29" height="3" rx="1.5" fill="#333"/>
+    <rect x="7" y="36" width="22" height="3" rx="1.5" fill="#282828"/>
+    <circle cx="62" cy="21" r="6" fill="#2a2a4a"/>
+    <text x="62" y="56" text-anchor="middle" fill="#F27507" font-size="10">✦</text>
+    <polygon points="110,15 110,25 122,20" fill="#F27507" opacity="0.5"/>
+  </svg>`,
+
+  // POST
+  citacao:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0a0a0a"/>
+    <text x="20" y="30" fill="#F27507" font-size="28" font-family="Georgia,serif" opacity="0.5">"</text>
+    <rect x="30" y="22" width="110" height="4" rx="2" fill="#2a2a2a"/>
+    <rect x="30" y="30" width="90" height="4" rx="2" fill="#222"/>
+    <rect x="30" y="38" width="100" height="4" rx="2" fill="#222"/>
+    <text x="140" y="58" text-anchor="end" fill="#F27507" font-size="28" font-family="Georgia,serif" opacity="0.5">"</text>
+    <rect x="55" y="60" width="50" height="1" fill="#333"/>
+    <rect x="60" y="65" width="40" height="3" rx="1.5" fill="#1a1a1a"/>
+  </svg>`,
+
+  pergunta:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0a0a0a"/>
+    <circle cx="80" cy="35" r="22" fill="#141414" stroke="#222" stroke-width="1"/>
+    <text x="80" y="42" text-anchor="middle" fill="#F27507" font-size="20" font-family="sans-serif" font-weight="bold">?</text>
+    <rect x="15" y="62" width="130" height="3" rx="1.5" fill="#1a1a1a"/>
+    <rect x="25" y="69" width="110" height="3" rx="1.5" fill="#141414"/>
+    <rect x="35" y="76" width="90" height="3" rx="1.5" fill="#141414"/>
+  </svg>`,
+
+  micro_historia:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0a0805"/>
+    <rect x="8" y="8" width="144" height="30" rx="4" fill="#150f05"/>
+    <rect x="14" y="13" width="80" height="5" rx="2" fill="#3d2510"/>
+    <rect x="14" y="22" width="100" height="3" rx="1.5" fill="#2d1a08"/>
+    <rect x="14" y="29" width="75" height="3" rx="1.5" fill="#2d1a08"/>
+    <rect x="8" y="44" width="144" height="3" rx="1.5" fill="#1a1005"/>
+    <rect x="8" y="51" width="120" height="3" rx="1.5" fill="#150f05"/>
+    <rect x="8" y="58" width="100" height="3" rx="1.5" fill="#150f05"/>
+    <rect x="8" y="70" width="144" height="8" rx="4" fill="#F27507" opacity="0.5"/>
+  </svg>`,
+
+  lista:`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg">
+    <rect width="160" height="82" fill="#0a0a0a"/>
+    <rect x="8" y="6" width="144" height="12" rx="3" fill="#141414"/>
+    <rect x="12" y="9" width="80" height="6" rx="2" fill="#F27507" opacity="0.5"/>
+    <rect x="8" y="22" width="6" height="6" rx="1" fill="#F27507" opacity="0.7"/>
+    <rect x="18" y="23" width="100" height="4" rx="2" fill="#1a1a1a"/>
+    <rect x="8" y="32" width="6" height="6" rx="1" fill="#F27507" opacity="0.7"/>
+    <rect x="18" y="33" width="85" height="4" rx="2" fill="#1a1a1a"/>
+    <rect x="8" y="42" width="6" height="6" rx="1" fill="#F27507" opacity="0.7"/>
+    <rect x="18" y="43" width="95" height="4" rx="2" fill="#1a1a1a"/>
+    <rect x="8" y="52" width="6" height="6" rx="1" fill="#F27507" opacity="0.7"/>
+    <rect x="18" y="53" width="75" height="4" rx="2" fill="#1a1a1a"/>
+    <rect x="8" y="66" width="144" height="10" rx="5" fill="#F27507" opacity="0.6"/>
+  </svg>`
+};
+
+
+const PHOTOS = {
+  comparacao: "data:image/jpeg;base64,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",
+  caixinha: "data:image/jpeg;base64,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",
+  tela_verde: "data:image/jpeg;base64,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",
+  storytelling: "data:image/jpeg;base64,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",
+  narrado: "data:image/jpeg;base64,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",
+  palestrinha: "data:image/jpeg;base64,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",
+  tela_dividida: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAsICAoIBwsKCQoNDAsNERwSEQ8PESIZGhQcKSQrKigkJyctMkA3LTA9MCcnOEw5PUNFSElIKzZPVU5GVEBHSEX/2wBDAQwNDREPESESEiFFLicuRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUX/wAARCABaAKADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDyKiiigAr6Z8Lhv+ER0XAJ/wBCi6f7gr5mr6D8PeK7Ky8OaXAyyP5FjCZGQZx8oHA796duo0m9jV1qze60+4gMMrrKApCA5xnmuetNBmsYisFtcAMcldpJz9a73zleBZImDK4BVh3B71jrr9s0ssbtJGY2IJI4OCRnj3FRKHNoaxrSirGF/ZV0U/485s+60LbSqDHLY3Of+uLEfniukn1W3t3RJJH3OoZcKTnOcD6nBqJdds224ncBs7SVIB6/4Gs/YruX9Yl2OYfTJpVI+yXSoT/DC2cfSrGi+HbyC2nkS4urZ7iTcR5e0kDp9O9dANcs2gE4mcxFiu7Y3bGfw5HPvSjWrQyFBM5IJH3Tjjrz7d6uNNRInVc90QWujRWztIYZJZHbcXkGTmuY8W+HLvU4isVrK6qSVCqSRkV1p1y0EUcnnPskUsGCHAAJBz6dD+VNbX7RWC75ST1AQ5HX/D9RVWM7niY8La7CSh0i9bHGRA3P6U2bwvrbSqyaNfD1/cN/hXuaavbSbdszHdIYuh4YY/xH51Gdes1YhpZFxnJKN0HU/TkfnTsFzxePwvrIGW0i+zj/AJ4N/hVm08KXwtzJd6Tf/eC7VQoQDn5uQc84H4169/wkFluK+dKCvBBRuOn9SB9aemqCaUJHFKyseGPQ8Z/pSsFzxDXvDWo20csiaberbrCJXLRkrGcZILYxxXHV9OeKHL+C9YLLtP2KXj/gJr5jpkhRRRQAUUuKMUAJXuHhrwXLNplpdi6X7Pd2MOUOcqdvP168fWvEcV6zZeM4JPDGnWFncpE8VukUzSSBCCBggZ+mc0FRbWx6vBapb2cVshOyJAik9eBURsY/mzFEdxy3yDn68V5Rb6hYtDsutRh3uCxIuBwc9OtULm5to8+TqaMB0/fj/Go5yuTzPZP7OhH/ACxi+7s5UH5c5x9OTSvp8LsGeGFioIBKg4FeRaXqlvE/mS6jFu6AGYcfrXTJrunbEJ1K2HIz+/X/ABqkxOJ3P2NcY2R4642ik+wx7QvkxbR0GwYH6V5tqesWh1SyMeowMgdmYrOMD5T15960W1fTpFyNTtgR/wBPC/407isdyLNQoAjjAHAAUYFILGMYxFEMdPlHH6VwjazZbuNTtSD/ANPC/wCNJJ4jsogf9PtifacH+tFwsd6LJBjEcYw24YUcH1+vvSGyRsZjiOORlRXnieJLV2MDalAEzuVjMMD9av6NrOlQXF1M2o2iNMw3EzqM4z7+9A1HRs7X7Ehz+7j56/KOaQwCMqqIgPbAxjj/AArn7zxDpLoirqtmcnJxcL/jVP8AtzSvObdqloVIxzcL/jTJNzxUc+DdZwCMWcw/8dNfMVdt4m1BPNu0F5G/BRBDICrr0XpxnHWuKxSEJRTguaXZQBKU5phQ5AHerW35vxphG0qTSKGC2ej7K3etBSCBx1GaNyE46UrjsUBaE0n2f95srVSHPIqDyv8ATgtO4rFF4AjgVMYcDpUt3HtmX61da3+QHHalcLGUI8HGBQY8np+lXWhAoSLIPFFx2KXlgdqbJHyOBV8w4qCdMEUxWK4T5elKIx6VMqZj/GnrGcdKVx2K3lD0H5U0x+wq55R9DQY+eh/Ki4WM8pjoKUJ/smtDy1x0bP0oCexouKxTEZpfLq5sX+6fzprRgnjAHuaLjsJhc53UxlQgfN0qXyEJx5yfnTWjRDgyD8qi5Vh4mRVA9OKjLIc9eaYyj+Fs0hDL1p2QrltLzYoAHSo/OZrnzQOahRznGM1O+VAGME+lA91cdI/mtucDIpXu5cY5x9K09N0JrgCSdiqnkKOtdBBolqmPk3fWpckilFs4oSlup/OnF5F5UCu3l0CxlGGhA9xWHqfh+SxUzW5MkQ6qeoqVUTKcGjBM0npUcjFiC1TyAuN0XX0qExzN1Rq0TM2hquV4U0/fJ6mkMEnZDmk8ic/wmncWo7dIe5pPn9T+dH2e4/umj7LP/dNFwEw3979aTaf7360/7HOe1KLCdgcUXCxH5ZOOSc9Pek2A966yePWbqSSTTNQeHTpcHIfYtmAPuHHKY9vv8dTxWPqlp9s1O4nh4jkbIyu0twAWx2ycnHvRcLeQ1fD10e4qQeHLk9XFehJpgI6U/wDs0DtXlvFyO32MDzC90ySxaNHYHzOlXf8AhH5VTJk4xnGK1/GNv5MtkcYyxraltx9nHH8I/lWzrS5IshU48zRwtrbCNZmYZ28ZotYhLeDIyBzV+/j8iDYo5diSKrW5EUhAyXIB+ldEJX1FVhyWidHayBFGcAeprTjZWQEMDz2NceboKQo3uScbhnBPtVz7XLax70UK4YAq3ShxEpHS3M6Wq7pCcYqg2qmYlYrZjnj5mwDVcT3M9xD9t2eUVJQKON3bNVZ9IlnlDeayNnJDL+VQkmU20UL+0MNwJlCxKx5TPAPp7VPAqzLj+Jeoqy8MktrNbXIJ2/ckY9R2BrKiu/s90QnzIg2gf3veqRD0NL7KPSk+yj0qL+1HPS1b86X+0Zz0tT/31V8rM+ZEn2UelH2UelM+23J6Wo/76pftd2elsv8A31TsHMh32UelT22ntcSeXHt3YJGTjOKqfarz/ngg/wCBUj315CjOYkAA55osLmRqvos6bfkBDvsXBwCQN2ee2PX3pk+ly26K0qhQx2gZzUkDtNEsjE7mG4896kIz1JP1NQyz0H7GsV01ufvKob6g097MAdK0btQL1DgZMfX8aY/3a8iUFGTRqptpM8x+IcPl/YD/ANNCK1Zk/wBGT/dH8qpfEr/Vaf8A9dTV+5/48l/65j+Vbt/u4/M0p6zOB1u5P20qjY2jGRVawYSuWPysOCTyKj1M/wCnS/71SaT9xv8Aer0aa5Ypoyqybqs6G2KR2yoodyP7gqjdA+d5s2FjQ7yo56ep71oW3KjNLOql9pUEFTkYqpVHUleQS1LMmoLLoomazMkJVScDnaTjIqWG0DIpge4UEA439PzqvooCpIAAABwB2rUsjlWJ67qxmlcqN7FZtJC5dwWb+8zbjXGa3bGyvCV+6x3D+tejzf6uuH8U/wAP1pU/isKorxuV7GUTQ+pXirgANY+j/fk+n9a2V61s9zlHAU8LTRTh0pCA8VWvjizk+lWDVPUyRZtimtwOgSWKxiggFqlw3kpI7MSC2VDfKQeBzgfSpLhI4biWIOCEcqMkZ/H3rV8G28Nzo1u9xDHK6NIitIoYqvoM9uTxWRrMUY1XUsIoxO+MD3pNGiZ//9k=",
+};
+
+const OBJS={
+  reels:[{v:'viral',l:'🔥 Viral'},{v:'engajamento',l:'💬 Engajamento'},{v:'autoridade',l:'🏆 Autoridade'},{v:'captacao',l:'🎯 Captação'},{v:'venda',l:'💰 Venda'}],
+  carrossel:[{v:'engajamento',l:'💬 Engajamento'},{v:'autoridade',l:'🏆 Autoridade'},{v:'captacao',l:'🎯 Captação'},{v:'venda',l:'💰 Venda'},{v:'aula',l:'📚 Aula'}],
+  stories:[{v:'captacao',l:'🎯 Captação'},{v:'aquecimento',l:'🔥 Aquecimento'},{v:'aula',l:'📚 Aula'},{v:'venda',l:'💰 Venda'},{v:'comunidade',l:'🤝 Comunidade'}],
+  post:[{v:'engajamento',l:'💬 Engajamento'},{v:'autoridade',l:'🏆 Autoridade'},{v:'captacao',l:'🎯 Captação'},{v:'viral',l:'🔥 Viral'}]
+};
+
+const MODS={
+  reels:[
+    {id:'tela_dividida',name:'Tela Dividida',desc:'Imagem em cima + fala em baixo',tag:'viral',tagLabel:'método hanna'},
+    {id:'tela_verde',name:'Tela Verde',desc:'Chroma key + cenário virtual',tag:'viral',tagLabel:'método hanna'},
+    {id:'palestrinha',name:'Palestrinha',desc:'Slide/quadro como apoio',tag:'viral',tagLabel:'método hanna'},
+    {id:'narrado',name:'Narrado',desc:'Voz sobre imagens/b-roll',tag:'viral',tagLabel:'método hanna'},
+    {id:'storytelling',name:'Storytelling',desc:'Narrativa pessoal + lição',tag:'viral',tagLabel:'método hanna'},
+    {id:'caixinha',name:'Caixinha',desc:'Responde perguntas da audiência',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'comparacao',name:'Comparação',desc:'Certo vs. errado lado a lado',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'bastidores',name:'Bastidores',desc:'Processo até o resultado',tag:'fraga',tagLabel:'conteúdos fraga'}
+  ],
+  carrossel:[
+    {id:'erros',name:'O que não fazer',desc:'Erro → alerta → correção',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'comparacao',name:'Comparação',desc:'Dois lados, contraste claro',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'quiz',name:'Quiz',desc:'Pergunta + alternativas A/B/C',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'historia',name:'História com contexto',desc:'Emoção → ensino cultural',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'regras',name:'Regras',desc:'Código cultural oculto',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'curiosidade',name:'Curiosidade',desc:'Revelação surpreendente',tag:'fraga',tagLabel:'conteúdos fraga'}
+  ],
+  stories:[
+    {id:'fundo_preto',name:'Fundo Preto',desc:'Frase forte, alto contraste',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'pov',name:'POV',desc:'Cena contextual sem expert',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'video_story',name:'Roteiro Vídeo',desc:'Fala natural + CTA',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'caixinha_s',name:'Caixinha',desc:'Pergunta para audiência',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'enquete',name:'Enquete',desc:'Pergunta + 2 opções',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'misto',name:'Sequência mista',desc:'Vários formatos combinados',tag:'fraga',tagLabel:'conteúdos fraga'}
+  ],
+  post:[
+    {id:'citacao',name:'Citação forte',desc:'Frase + contexto poderoso',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'pergunta',name:'Pergunta reflexiva',desc:'Gera comentários',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'micro_historia',name:'Micro-história',desc:'Narrativa curta e impactante',tag:'fraga',tagLabel:'conteúdos fraga'},
+    {id:'lista',name:'Lista revelação',desc:'X coisas que você não sabia',tag:'fraga',tagLabel:'conteúdos fraga'}
+  ]
+};
+
+const GPT_URLS={
+  reels:'https://chatgpt.com/g/g-6807f3cdd5608191ae11c96261ff8a1d-conteudos-fraga',
+  carrossel:'https://chatgpt.com/g/g-6807f3cdd5608191ae11c96261ff8a1d-conteudos-fraga',
+  stories:'https://chatgpt.com/g/g-6a0b1146be948191ba5c78babae2af01-stories-10x-fraga',
+  post:'https://chatgpt.com/g/g-6807f3cdd5608191ae11c96261ff8a1d-conteudos-fraga'
+};
+
+// PROMPTS POR MODELO - Método Hanna para reels com instrução específica
+const HANNA_PROMPTS={
+  tela_dividida:`FORMATO: TELA DIVIDIDA
+O vídeo tem a tela dividida ao meio: TELA DE CIMA mostra imagens/b-roll enquanto o apresentador fala embaixo.
+
+MÉTODO DE GERAÇÃO (baseado em roteiros virais analisados):
+Use os seguintes princípios que fazem roteiros viralizarem:
+- CONFLITO UNIVERSAL com RELEVÂNCIA EMOCIONAL (raiva, empatia, indignação, injustiça)
+- FAMILIARIDADE: use referências, marcas, nomes, situações que o público já conhece
+- CONTRASTE: de uma situação para o oposto (calma→caos, fracasso→sucesso, errado→certo)
+- LOOP DE CURIOSIDADE: abra perguntas no início que só se fecham no final
+- DEBATE MENTAL: frases que fazem o público pensar e questionar antes de comentar
+- EFEITO A-HÁ: revelações que mudam como o público vê algo familiar
+- LINGUAGEM FAMILIAR: expressões do cotidiano brasileiro
+- MORAL DA HISTÓRIA conectada ao produto (italiano/Silvano)
+
+REGRAS OBRIGATÓRIAS:
+- Use apenas personagens/situações REAIS e verificáveis
+- Nunca invente histórias ou personagens fictícios
+- Se usar pessoa famosa, cite fonte real
+- A originalidade está nos gatilhos — nunca copie o tema original
+
+ESTRUTURA DE ENTREGA:
+GANCHO (3s) — para o polegar
+[TELA DE CIMA: descreva a imagem]
+[TELA DE BAIXO: o que falar]
+
+DESENVOLVIMENTO
+[alterne TELA DE CIMA / TELA DE BAIXO em blocos]
+
+CLÍMAX + MORAL
+
+CTA com urgência`,
+
+  tela_verde:`FORMATO: TELA VERDE (Chroma Key)
+O apresentador aparece sobre um fundo virtual — imagens da Itália, mapas, textos em italiano, fotos históricas.
+
+MÉTODO DE GERAÇÃO (baseado em roteiros virais analisados):
+- LOOP DE CURIOSIDADE: abra com algo que o público vai querer descobrir
+- FAMILIARIDADE: use referências que o público italiano-lover reconhece
+- EFEITO A-HÁ em cascata: revele informações em etapas que mudam a percepção
+- Use o FORMATO VISUAL a favor: o fundo muda conforme o conteúdo
+- CONFLITO e CONTRASTE que geram debate mental
+- MORAL conectada ao produto
+
+REGRAS OBRIGATÓRIAS:
+- Use apenas fatos REAIS e verificáveis sobre italiano/cultura italiana
+- Nunca invente histórias ou situações fictícias
+- Traga dados reais com fonte quando usar números
+
+ESTRUTURA DE ENTREGA:
+GANCHO (3s)
+[FUNDO: descreva a imagem/visual do fundo]
+[FALA: o que dizer]
+
+DESENVOLVIMENTO (em blocos com mudança de fundo)
+[FUNDO: ...]
+[FALA: ...]
+
+CLÍMAX + MORAL
+
+CTA`,
+
+  palestrinha:`FORMATO: PALESTRINHA
+O apresentador usa um quadro, slides ou anotações visuais como apoio enquanto fala. Estilo didático e envolvente.
+
+MÉTODO DE GERAÇÃO (baseado em roteiros virais analisados):
+- Abra com CONFLITO que gera identificação ("se sua namorada te mandou esse vídeo...")
+- Use FAMILIARIDADE: situações que o público já viveu
+- Estruture em "aulas" com humor e leveza
+- Crie CURIOSIDADE progressiva: "agora vem o mais difícil de todos"
+- CONTRASTE entre o errado e o certo em cada tópico
+- DEBATE MENTAL que gera engajamento antes do comentário
+- MORAL conectada ao produto no final
+
+REGRAS OBRIGATÓRIAS:
+- Use apenas situações/referências REAIS
+- Nunca invente personagens fictícios
+
+ESTRUTURA DE ENTREGA:
+GANCHO (3s)
+[SLIDE/QUADRO: o que escrever]
+[FALA: o que dizer]
+
+TÓPICO 1
+[SLIDE: ...]
+[FALA: ...]
+
+TÓPICO 2 (mais difícil/surpreendente)
+[SLIDE: ...]
+[FALA: ...]
+
+MORAL + CTA`,
+
+  narrado:`FORMATO: NARRADO
+Voz do apresentador narrando sobre imagens/b-roll. Sem aparecer em câmera — só a voz conduz a história.
+
+MÉTODO DE GERAÇÃO (baseado em roteiros virais analisados):
+- GANCHO VISUAL FORTE: a primeira imagem precisa parar o scroll (conflito visual, contraste, curiosidade)
+- CONFLITO que muda a vida do personagem/situação
+- LINGUAGEM FAMILIAR: expressões cotidianas que criam imagens mentais
+- CONTRASTE visual e verbal ao longo do vídeo
+- RELEVÂNCIA EMOCIONAL: nojo, raiva, empatia, admiração
+- Mostre ANTES E DEPOIS (contraste visual)
+- MORAL que conecta ao produto
+
+REGRAS OBRIGATÓRIAS:
+- Use apenas situações/fatos REAIS e verificáveis
+- Nunca invente histórias ou personagens
+
+ESTRUTURA DE ENTREGA:
+GANCHO (3s)
+[IMAGEM/B-ROLL: descreva o que mostrar]
+[NARRAÇÃO: o que dizer]
+
+DESENVOLVIMENTO (em blocos)
+[IMAGEM: ...]
+[NARRAÇÃO: ...]
+
+CLÍMAX (contraste visual e verbal)
+
+MORAL + CTA`,
+
+  storytelling:`FORMATO: STORYTELLING PESSOAL
+O apresentador conta uma história — pessoal ou de terceiros — com começo, conflito, mudança e moral. Tom íntimo, direto à câmera.
+
+MÉTODO DE GERAÇÃO (baseado em roteiros virais analisados):
+- Abra com CONFLITO UNIVERSAL que gera debate mental ("e o meu noivo que namorou 16 mulheres...")
+- Use CONTRASTE constante: antes/depois, errado/certo, fraco/forte
+- FAMILIARIDADE: referências que o público reconhece
+- LINGUAGEM FAMILIAR: expressões do cotidiano brasileiro
+- PROGRESSÃO DO CONFLITO que intensifica emoções
+- EFEITO A-HÁ: a revelação que muda tudo (o "16 mulheres" era 16 versões dela)
+- MUDANÇA DEFINITIVA: o clímax onde nada volta a ser como antes
+- MORAL clara conectada ao produto/italiano
+
+REGRAS OBRIGATÓRIAS:
+- Pode ser história pessoal do Silvano OU de personagem real verificável
+- Nunca invente situações fictícias
+- Se usar pessoa famosa, use nome real verificável
+
+ESTRUTURA DE ENTREGA:
+GANCHO (3s) — conflito que gera debate mental
+INÍCIO DA HISTÓRIA — apresenta o personagem no fundo do poço
+CONFLITO — o que muda a vida
+DESENVOLVIMENTO — progressão com contraste
+CLÍMAX + EFEITO A-HÁ — a revelação
+MORAL — conecta ao italiano/Silvano
+CTA com urgência`
+};
+
+function toast(msg,dur=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
+function getKey(k){return localStorage.getItem('creatory_key_'+k)||'';}
+
+function salvarKey(tipo){
+  const el=document.getElementById('key-'+tipo);
+  const v=el.value.trim();
+  if(!v){toast('⚠️ Cole a chave antes de salvar');return;}
+  localStorage.setItem('creatory_key_'+tipo,v);
+  el.value='';
+  el.placeholder=(tipo==='ant'?'sk-ant-':'pplx-')+'... (salva ✓)';
+  atualizarStatus();
+  toast('✅ Chave '+(tipo==='ant'?'Anthropic':'Perplexity')+' salva!');
+}
+
+function atualizarStatus(){
+  const ant=getKey('ant');const pplx=getKey('pplx');
+  const st=document.getElementById('api-status');
+  if(ant&&pplx){st.textContent='✅ Ambas as chaves configuradas — pronto para gerar!';st.className='api-status ok';}
+  else if(ant){st.textContent='✅ Anthropic OK · ⚠️ Perplexity não configurada (temas em alta desativados)';st.className='api-status ok';}
+  else{st.textContent='⚠️ Configure a chave Anthropic para gerar conteúdo.';st.className='api-status';}
+}
+
+function selectFormat(el){
+  document.querySelectorAll('.fmt-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');S.format=el.dataset.val;
+  renderObjs();renderMods();
+}
+
+function renderObjs(){
+  const list=OBJS[S.format]||[];
+  const wrap=document.getElementById('obj-chips');
+  wrap.innerHTML='';
+  list.forEach((o,i)=>{
+    const d=document.createElement('div');
+    d.className='chip'+(i===0?' active':'');
+    d.dataset.val=o.v;d.textContent=o.l;
+    d.onclick=function(){
+      document.querySelectorAll('#obj-chips .chip').forEach(c=>c.classList.remove('active'));
+      this.classList.add('active');S.objetivo=this.dataset.val;
+    };
+    wrap.appendChild(d);
+  });
+  S.objetivo=list[0]?.v||'';
+  const titles={reels:'Qual o objetivo?',carrossel:'Qual o objetivo?',stories:'Tipo de sequência',post:'Qual o objetivo?'};
+  document.getElementById('obj-title').textContent=titles[S.format];
+}
+
+function renderMods(){
+  const list=MODS[S.format]||[];
+  S.modelo=list[0]?.id||'';
+  const grid=document.getElementById('mod-grid');
+  grid.innerHTML='';
+  list.forEach((m,i)=>{
+    const photo=PHOTOS[m.id];
+const thumb=photo?`<img src="${photo}" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;">`:(THUMBS[m.id]||`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="82" fill="#1a1a1a"/></svg>`);
+    const card=document.createElement('div');
+    card.className='model-card'+(i===0?' active':'');
+    card.dataset.id=m.id;
+    card.innerHTML=`
+      <div class="model-thumb">${thumb}</div>
+      <div class="model-info">
+        <div class="model-name">${m.name}</div>
+        <div class="model-desc">${m.desc}</div>
+        <span class="model-tag ${m.tag}">${m.tagLabel}</span>
+      </div>`;
+    card.onclick=function(){
+      document.querySelectorAll('.model-card').forEach(c=>c.classList.remove('active'));
+      this.classList.add('active');S.modelo=this.dataset.id;
+    };
+    grid.appendChild(card);
+  });
+}
+
+function selectTom(el){
+  document.querySelectorAll('.tom').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');S.tom=el.dataset.val;
+}
+
+async function buscarTemas(){
+  const ant=getKey('ant');
+  if(!ant){toast('⚠️ Configure a chave Anthropic primeiro');return;}
+  const btn=document.getElementById('tema-btn');
+  btn.textContent='Buscando...';btn.disabled=true;
+  const grid=document.getElementById('temas-grid');
+  grid.innerHTML='<div style="grid-column:1/-1;color:var(--text2);font-size:12px;padding:8px 0"><span class="spinner"></span>Buscando temas em alta...</div>';
+  grid.classList.remove('hidden');
+  try{
+    let temas=[];
+    // Tenta via Netlify Function (Perplexity em tempo real)
+    try{
+      const r=await fetch('/.netlify/functions/temas');
+      const d=await r.json();
+      if(d.temas&&d.temas.length>0){temas=d.temas;}
+    }catch(e){}
+    // Fallback: Anthropic
+    if(!temas.length){
+      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,messages:[{role:'user',content:'Sugira 6 temas específicos e interessantes sobre aprendizado de italiano, cultura italiana, viagens para a Itália ou gastronomia italiana para criar conteúdo no Instagram em 2026. Cada tema em uma linha, máx 12 palavras, sem numeração ou símbolos.'}]})});
+      const d=await r.json();
+      const txt=d.content?.[0]?.text||'';
+      temas=txt.split('\n').filter(l=>l.trim()&&l.length>8).slice(0,6);
+    }
+    if(!temas.length)throw new Error('Nenhum tema retornado');
+    grid.innerHTML='';
+    temas.forEach(t=>{
+      const d=document.createElement('div');
+      d.className='tema-item';d.textContent=t;
+      d.onclick=()=>{
+        document.getElementById('topic-input').value=t;
+        document.getElementById('topic-hint').textContent='✓ Tema selecionado';
+        document.getElementById('topic-hint').style.color='var(--orange)';
+        toast('✓ Tema selecionado!');
+      };
+      grid.appendChild(d);
+    });
+    toast('✅ '+temas.length+' temas encontrados!');
+  }catch(e){
+    grid.innerHTML='<div style="grid-column:1/-1;color:#ef4444;font-size:12px;padding:4px">❌ Erro: '+e.message+'</div>';
+  }
+  btn.textContent='✦ Temas em alta';btn.disabled=false;
+}
+
+function buildPrompt(){
+  const tema=document.getElementById('topic-input').value.trim();
+  const mod=S.modelo;const obj=S.objetivo;const tom=S.tom;
+  const modelData=MODS[S.format]?.find(m=>m.id===mod);
+
+  const BASE=`Você é especialista em criação de conteúdo viral para o perfil do Silvano Formentin — professor brasileiro de italiano, apaixonado pela cultura italiana, com tom próximo, autêntico e envolvente.
+
+PÚBLICO: Brasileiros que amam a Itália, querem aprender italiano ou sonham em viajar para lá.
+OBJETIVO DO CONTEÚDO: ${obj}
+TOM DE VOZ: ${tom}
+TEMA: ${tema||'escolha o mais relevante para o nicho italiano'}
+MODELO ESCOLHIDO: ${modelData?.name||mod}`;
+
+  // Modelos com Método Hanna
+  if(HANNA_PROMPTS[mod]){
+    return `${BASE}
+
+${HANNA_PROMPTS[mod]}
+
+Adapte tudo para o nicho italiano do Silvano. Sempre ensine algo real sobre italiano (palavra, pronúncia, cultura, gastronomia). A moral e o CTA devem conectar com o curso/mentoria de italiano do Silvano.`;
+  }
+
+  // Modelos Conteúdos Fraga
+  const fragaInst={
+    caixinha:'ROTEIRO para Reels — formato caixinha de perguntas. Comece com uma pergunta real ou simulada da audiência. Responda de forma envolvente ensinando algo sobre italiano. Hook forte nos 3 primeiros segundos. CTA no final pedindo mais perguntas. Entregue: GANCHO (3s) | PERGUNTA DA CAIXINHA | DESENVOLVIMENTO | ENSINAMENTO | CTA',
+    comparacao_reels:'ROTEIRO para Reels — formato comparação (certo vs. errado). Mostre o jeito errado primeiro (cria tensão), depois revela o jeito certo em italiano. Alto contraste. Entregue: GANCHO | ERRADO (com tensão) | CERTO (revelação) | APLICAÇÃO | CTA',
+    bastidores:'ROTEIRO para Reels — bastidores. Mostre o processo real, a rotina, a jornada por trás do aprendizado de italiano. Tom autêntico, sem filtro. Entregue: GANCHO | BASTIDORES (3-4 momentos reais) | LIÇÃO | CTA',
+    erros:'CARROSSEL — O que não fazer. SLIDE 1: Hook "NUNCA faça isso em italiano". SLIDES 2-4: Um erro por slide (headline + explicação curta). SLIDE 5: A forma correta. SLIDE 6: CTA. Entregue cada slide numerado com HEADLINE e TEXTO.',
+    comparacao:'CARROSSEL — Comparação. SLIDE 1: Hook de contraste. SLIDES 2-4: Lados opostos claramente marcados. SLIDE 5: Síntese. SLIDE 6: CTA. Entregue cada slide numerado com HEADLINE e TEXTO.',
+    quiz:'CARROSSEL — Quiz. SLIDE 1: Pergunta provocadora. SLIDES 2-3: Alternativas com suspense. SLIDE 4: Revelação + explicação. SLIDE 5: Aplicação prática. SLIDE 6: CTA. Entregue slide a slide.',
+    historia:'CARROSSEL — História com contexto. SLIDE 1: Cena emocional italiana (nonna, café, viagem). SLIDES 2-4: Contexto cultural + ensinamento. SLIDE 5: Aplicação. SLIDE 6: CTA emocional. Slide a slide.',
+    regras:'CARROSSEL — Regras culturais. SLIDE 1: Regra italiana que brasileiros não sabem. SLIDES 2-4: Por que existe + situações. SLIDE 5: Como aplicar. SLIDE 6: CTA. Slide a slide.',
+    curiosidade:'CARROSSEL — Curiosidade. SLIDE 1: Promessa de revelação surpreendente. SLIDES 2-4: Desenvolvimento contraintuitivo. SLIDE 5: Aplicação. SLIDE 6: CTA. Slide a slide.',
+    fundo_preto:'SEQUÊNCIA DE STORIES fundo preto. 5-7 stories. Cada story = 1 frase curta e forte. Ritmo rápido. Entregue: STORY 1, STORY 2... (texto de cada um)',
+    pov:'SEQUÊNCIA DE STORIES POV. 4-6 stories descrevendo cenas italianas imersivas ("Imagine que você está em Roma..."). Entregue story a story.',
+    video_story:'ROTEIRO STORIES vídeo. 3-5 stories em vídeo curto. Abertura forte, desenvolvimento, CTA. Cada story máx 15 segundos. Entregue story a story.',
+    caixinha_s:'STORY caixinha. 1 story com pergunta que gera resposta no direct. Entregue: VISUAL + TEXTO DA PERGUNTA.',
+    enquete:'STORY enquete. Pergunta + 2 opções opostas. Entregue: PERGUNTA + OPÇÃO A + OPÇÃO B.',
+    misto:'SEQUÊNCIA STORIES mista. Combine: fundo preto (1-2) + vídeo (1-2) + enquete (1) + CTA. Entregue story a story com tipo de cada um.',
+    citacao:'POST citação. Frase poderosa + 3-4 linhas de contexto + CTA para comentar + hashtags. Entregue: FRASE | CONTEXTO | CTA | HASHTAGS',
+    pergunta:'POST pergunta. Pergunta reflexiva + 2-3 linhas que incentivam comentário + CTA + hashtags. Entregue: PERGUNTA | CORPO | CTA | HASHTAGS',
+    micro_historia:'POST micro-história. Narrativa curta (máx 8 linhas) com gancho + conflito + resolução + lição + CTA + hashtags. Entregue completo.',
+    lista:'POST lista. Hook inicial + X coisas sobre italiano + CTA + hashtags. Entregue completo.'
+  };
+
+  const instrucao=fragaInst[mod]||fragaInst[mod+'_reels']||'Crie um conteúdo relevante e envolvente sobre italiano para o formato escolhido.';
+
+  return `${BASE}
+
+${instrucao}
+
+REGRAS DE OURO:
+- Sempre ensine algo real sobre italiano (palavra, frase, pronúncia, cultura)
+- Use abordagem baseada em PREMISSAS, não promessas vazias
+- CTA com urgência no final
+- Quebre expectativas — surpresa gera retenção
+- Se usar número, seja específico`;
+}
+
+async function gerar(){
+  const ant=getKey('ant');
+  if(!ant){toast('⚠️ Configure a chave Anthropic primeiro');return;}
+  const tema=document.getElementById('topic-input').value.trim();
+  if(!tema){toast('⚠️ Escreva o tema no campo acima');return;}
+
+  const btn=document.getElementById('gen-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Gerando conteúdo...';
+  const box=document.getElementById('result-box');box.style.display='none';
+
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:buildPrompt()}]})
+    });
+    const d=await r.json();
+    if(d.error)throw new Error(d.error.message);
+    const text=d.content?.[0]?.text||'Erro ao gerar.';
+    const labels={reels:'ROTEIRO REELS',carrossel:'CARROSSEL',stories:'SEQUÊNCIA STORIES',post:'POST'};
+    document.getElementById('result-title').textContent=labels[S.format];
+    document.getElementById('result-content').textContent=text;
+    box.style.display='block';
+    box.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){
+    toast('❌ Erro: '+e.message,4000);
+  }
+  btn.disabled=false;btn.innerHTML='▶ GERAR CONTEÚDO';
+}
+
+function copiar(){
+  const text=document.getElementById('result-content').textContent;
+  navigator.clipboard.writeText(text).then(()=>{const b=event.target;b.textContent='✓ Copiado!';setTimeout(()=>b.textContent='⎘ Copiar texto',2000);});
+}
+
+function abrirGPT(){
+  const text=document.getElementById('result-content').textContent;
+  if(!text){toast('⚠️ Gere o conteúdo primeiro');return;}
+  const url=GPT_URLS[S.format];
+  navigator.clipboard.writeText(text).then(()=>{
+    const b=document.getElementById('gpt-btn');
+    b.textContent='✓ Copiado! Abrindo...';
+    setTimeout(()=>{window.open(url,'_blank');b.textContent='✦ Criar no GPT';},700);
+  });
+}
+
+window.addEventListener('load',()=>{
+  ['ant','pplx'].forEach(k=>{
+    if(getKey(k))document.getElementById('key-'+k).placeholder=(k==='ant'?'sk-ant-':'pplx-')+'... (salva ✓)';
+  });
+  atualizarStatus();
+  document.getElementById('topic-input').addEventListener('input',function(){
+    const h=document.getElementById('topic-hint');
+    h.textContent=this.value.trim()?'✓ Tema definido':'Escreva o tema ou busque sugestões em alta';
+    h.style.color=this.value.trim()?'var(--orange)':'';
+  });
+  renderObjs();renderMods();
+});
+</script>
+</body>
+</html>

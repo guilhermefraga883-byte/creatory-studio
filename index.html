@@ -988,11 +988,169 @@ function copiar(){
   navigator.clipboard.writeText(text).then(()=>{const b=event.target;b.textContent='✓ Copiado!';setTimeout(()=>b.textContent='⎘ Copiar texto',2000);});
 }
 
+const VISUAL_MODELS={
+  // CARROSSEL
+  erros:`PADRÃO VISUAL — MODELO: O QUE NÃO FAZER
+- Fundo escuro com foto cinematográfica de situação italiana (bar, rua, restaurante, mercado)
+- Logo "SF" ou "Silvano Formentin" no canto superior esquerdo
+- CAPA (slide 1): headline explosiva em caixa alta, estilo gráfico impactante, cores fortes (preto + vermelho), elemento de alerta visual (ícone ✗ grande, símbolo de proibido)
+- Slides de ERRO: fundo mais escuro, grande ícone ✗ vermelho no canto superior, headline do erro em caixa alta, texto explicativo em branco
+- Slide de SOLUÇÃO CERTA: fundo levemente diferente, grande ícone ✓ verde, headline em caixa alta, texto da solução
+- Divisor com as 3 cores da bandeira italiana (verde, branco, vermelho) abaixo de cada headline
+- Número do slide no rodapé direito (1/N, 2/N...)
+- Último slide: CTA em card destacado, fundo com foto italiana`,
+
+  comparacao:`PADRÃO VISUAL — MODELO: COMPARAÇÃO
+- Fundo escuro com foto cinematográfica italiana ao fundo (desfocada)
+- Logo "SF" no canto superior esquerdo
+- CAPA (slide 1): headline de contraste em caixa alta, tipografia grande, foto impactante
+- Slides de comparação: divididos VISIVELMENTE em dois lados — esquerda (lado A, tom mais frio/neutro) e direita (lado B, tom mais quente/vibrante), com divisória vertical clara no centro
+- Cada lado com headline própria em caixa alta + texto explicativo
+- Ícones ou símbolos que reforcem a diferença (✗ vs ✓, ← vs →, antes vs depois)
+- Divisor com as 3 cores da bandeira italiana abaixo das headlines
+- Número do slide no rodapé direito (1/N, 2/N...)
+- Último slide: CTA centralizado`,
+
+  quiz:`PADRÃO VISUAL — MODELO: QUIZ
+- Fundo escuro com foto italiana desfocada ao fundo
+- Logo "SF" no canto superior esquerdo
+- CAPA (slide 1): pergunta do quiz em destaque, elemento de interrogação grande, tom de desafio
+- Slides de alternativas: CAIXAS de alternativas estilo Stories do Instagram — cada alternativa em uma caixa arredondada, letras A, B, C em destaque colorido (laranja, azul, verde)
+- As caixas devem ser grandes, fáceis de ler, com espaço entre elas
+- Slide de RESPOSTA: destaque visual na alternativa correta (borda laranja brilhante, ícone ✓), as erradas mais apagadas
+- Explicação da resposta em texto menor abaixo
+- Divisor com as 3 cores da bandeira italiana
+- Número do slide no rodapé direito (1/N, 2/N...)`,
+
+  historia:`PADRÃO VISUAL — MODELO: HISTÓRIA COM CONTEXTO
+- Fundo com foto cinematográfica italiana EMOCIONAL (família italiana, velhinha, café, aldeia) — foto ocupa o slide inteiro
+- Logo "SF" no canto superior esquerdo
+- CAPA (slide 1): foto mais impactante + headline emocional em caixa alta, fonte serif grande
+- Slides de desenvolvimento: foto italiana de contexto + texto narrativo em card semi-transparente na parte inferior do slide
+- Tom quente, nostálgico, cinematográfico — cores âmbar, dourado, sépia
+- Headline de cada slide em caixa alta, corpo do texto menor
+- Divisor com as 3 cores da bandeira italiana
+- Número do slide no rodapé direito (1/N, 2/N...)
+- Último slide: foto emocional forte + CTA`,
+
+  regras:`PADRÃO VISUAL — MODELO: REGRAS CULTURAIS
+- Fundo escuro elegante com textura ou foto italiana desfocada
+- Logo "SF" no canto superior esquerdo
+- CAPA (slide 1): headline impactante "A REGRA QUE NINGUÉM TE CONTOU" ou similar, ícone de livro/scroll/regra
+- Cada regra em slide próprio: número da regra em destaque grande (01, 02, 03...) em laranja, headline da regra em caixa alta, explicação em texto menor
+- Visual de autoridade e clareza — sem poluição visual, muito branco, muito espaço
+- Ícones italianos sutis (bandeira, mapa, símbolo cultural) como elemento decorativo
+- Divisor com as 3 cores da bandeira italiana
+- Número do slide no rodapé direito (1/N, 2/N...)
+- Último slide: CTA com tom de "agora você sabe"`,
+
+  curiosidade:`PADRÃO VISUAL — MODELO: CURIOSIDADE/SEGREDO
+- Fundo escuro misterioso com foto italiana desfocada
+- Logo "SF" no canto superior esquerdo
+- CAPA (slide 1): headline de revelação em caixa alta ("O SEGREDO QUE..."), elemento de surpresa (ícone de lâmpada, interrogação, olho)
+- Slides de desenvolvimento: foto italiana relevante + texto em card — vai revelando a curiosidade em camadas
+- Tipografia grande, ousada, tom de revelação progressiva
+- Cores: preto, laranja, dourado — clima de descoberta
+- Divisor com as 3 cores da bandeira italiana
+- Número do slide no rodapé direito (1/N, 2/N...)
+- Último slide: "Agora você sabe" + CTA`,
+
+  // STORIES
+  fundo_preto:`PADRÃO VISUAL — STORIES FUNDO PRETO
+- Fundo 100% preto
+- Uma frase por story, texto branco grande centralizado
+- Tipografia clean, bold, sem elementos extras
+- Último story: CTA com fundo laranja ou elemento colorido`,
+
+  pov:`PADRÃO VISUAL — STORIES POV
+- Foto ou vídeo de contexto italiano ao fundo (rua, café, mercado)
+- Texto "POV:" em destaque no topo
+- Cena descrita em texto menor abaixo
+- Tom imersivo, como se você estivesse lá`,
+
+  video_story:`PADRÃO VISUAL — STORIES VÍDEO
+- Layout vertical stories
+- Texto da fala como legenda na parte inferior
+- Fundo desfocado ou sólido escuro
+- CTA no último story com botão ou seta`,
+
+  caixinha_s:`PADRÃO VISUAL — STORY CAIXINHA
+- Fundo foto italiana ou cor sólida escura
+- Caixinha de pergunta do Instagram centralizada
+- Texto da pergunta acima da caixinha
+- Tom de convite`,
+
+  enquete:`PADRÃO VISUAL — STORY ENQUETE
+- Fundo foto italiana ou cor sólida
+- Pergunta no topo em texto grande
+- Dois botões de enquete do Instagram (opção A e opção B)
+- Visual limpo`,
+
+  misto:`PADRÃO VISUAL — SEQUÊNCIA STORIES MISTA
+- Stories variados: fundo preto + foto + enquete
+- Cada story com seu padrão específico conforme o tipo
+- Sequência coesa com mesma paleta (preto, laranja, branco)`,
+
+  // POST
+  citacao:`PADRÃO VISUAL — POST CITAÇÃO
+- Fundo escuro com foto italiana desfocada ou textura
+- Aspas grandes em destaque (laranja ou dourado)
+- Frase principal em tipografia grande, caixa alta ou título
+- Autoria ou contexto em texto menor abaixo
+- Logo "SF" discreto
+- Visual elegante e editorial`,
+
+  pergunta:`PADRÃO VISUAL — POST PERGUNTA
+- Fundo escuro com foto italiana
+- Ponto de interrogação grande como elemento visual
+- Pergunta em tipografia grande, clara, centralizada
+- Subtexto que incentiva o comentário
+- Logo "SF" discreto`,
+
+  micro_historia:`PADRÃO VISUAL — POST MICRO-HISTÓRIA
+- Foto italiana cinematográfica ocupando o post
+- Texto em card semi-transparente na parte inferior
+- Headline em caixa alta, corpo menor
+- Divisor com cores da bandeira italiana
+- Logo "SF" discreto`,
+
+  lista:`PADRÃO VISUAL — POST LISTA
+- Fundo escuro elegante
+- Título da lista em caixa alta no topo
+- Cada item numerado com ícone ou bullet laranja
+- Tipografia clara e bem espaçada
+- Logo "SF" discreto`
+};
+
 function abrirGPT(){
   const text=document.getElementById('result-content').textContent;
   if(!text){toast('⚠️ Gere o conteúdo primeiro');return;}
-  const url=GPT_URLS[S.format];
-  navigator.clipboard.writeText(text).then(()=>{
+
+  const fmt=S.format;
+  const mod=S.modelo;
+  const url=GPT_URLS[fmt];
+  let finalText=text;
+
+  // Para carrossel, stories e post — monta prompt completo pro GPT
+  if(fmt!=='reels'){
+    const visualModel=VISUAL_MODELS[mod]||'';
+    const isCarrossel=fmt==='carrossel';
+    const isStories=fmt==='stories';
+
+    let slideCount='';
+    if(isCarrossel) slideCount='Máximo 8 slides. ';
+
+    const promptGPT=`Crie um ${isCarrossel?'carrossel de Instagram':'post/sequência de stories'} com o conteúdo abaixo. ${isCarrossel?'Quero que você gere todos os slides separados, como imagens individuais, uma por slide, e não em uma grade única. '+slideCount:''}Mantenha a mesma identidade visual em todos os ${isCarrossel?'slides':'stories'}, baseada no padrão visual descrito. ${isCarrossel?'A capa deve ser mais chamativa, com imagem forte. Os demais slides podem usar elementos gráficos mais simples. ':''}Use exatamente os textos abaixo, sem mudar a copy. Entregue tudo pronto para postar. ${isCarrossel?'Gere todos os slides separadamente, todo de uma vez, 1 imagem por slide, e não em uma prancha/grade única. ':''}Use referência de imagem com elementos para facilitar a didática e HEADLINE com alguns destaques em caixa ALTA. O texto do corpo não pode ser muito pequeno (use todo o espaço disponível se precisar), para a leitura ser fácil, e pode ter quebras de linhas e destaques.
+
+${visualModel}
+
+CONTEÚDO:
+${text}`;
+
+    finalText=promptGPT;
+  }
+
+  navigator.clipboard.writeText(finalText).then(()=>{
     const b=document.getElementById('gpt-btn');
     b.textContent='✓ Copiado! Abrindo...';
     setTimeout(()=>{window.open(url,'_blank');b.textContent='✦ Criar no GPT';},700);

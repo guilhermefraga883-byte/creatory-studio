@@ -48,6 +48,16 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
 .topic-hint{font-size:11px;color:var(--text3)}
 .btn-temas{padding:6px 14px;background:var(--surf2);border:.5px solid var(--border);border-radius:8px;color:var(--text);font-size:11px;font-weight:700;cursor:pointer}
 .btn-temas:hover{border-color:var(--orange);color:var(--orange)}
+.search-row{display:flex;gap:8px;margin-top:8px;align-items:center}
+.search-row.hidden{display:none}
+.search-input{flex:1;background:rgba(0,0,0,.4);border:.5px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:12px;font-family:'Barlow',sans-serif;outline:none}
+.search-input:focus{border-color:rgba(242,117,7,.4)}
+.search-input::placeholder{color:var(--text3)}
+.btn-buscar{padding:7px 14px;background:var(--orange);border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+.btn-buscar:hover{background:var(--orange2)}
+.contexto-box{background:rgba(242,117,7,.04);border:.5px solid rgba(242,117,7,.2);border-radius:10px;padding:.75rem 1rem;margin-top:10px;font-size:11.5px;color:var(--text2);line-height:1.6;display:none}
+.contexto-box.show{display:block}
+.contexto-label{font-size:9.5px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
 .temas-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .temas-grid.hidden{display:none}
 .tema-item{background:var(--surf);border:.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;cursor:pointer;line-height:1.4;color:var(--text2)}
@@ -138,6 +148,10 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
     <div class="topic-footer">
       <span class="topic-hint" id="topic-hint">Escreva o tema ou busque sugestões em alta</span>
       <button class="btn-temas" id="tema-btn" onclick="buscarTemas()">✦ Temas em alta</button>
+    </div>
+    <div class="search-row hidden" id="search-row">
+      <input class="search-input" id="search-query" placeholder="Ex: gastronomia italiana, viagem Roma, pronúncia italiana..." onkeydown="if(event.key==='Enter')buscarTemas()">
+      <button class="btn-buscar" onclick="buscarTemas()">Buscar</button>
     </div>
     <div class="temas-grid hidden" id="temas-grid"></div>
   </div>
@@ -796,21 +810,35 @@ function selectTom(el){
 async function buscarTemas(){
   const ant=getKey('ant');
   const btn=document.getElementById('tema-btn');
+  const searchRow=document.getElementById('search-row');
+
+  // Primeira vez: mostra campo de pesquisa e para
+  if(searchRow.classList.contains('hidden')){
+    searchRow.classList.remove('hidden');
+    document.getElementById('search-query').focus();
+    btn.textContent='✦ Temas em alta';
+    return;
+  }
+
+  const query=document.getElementById('search-query').value.trim();
   btn.textContent='Buscando...';btn.disabled=true;
   const grid=document.getElementById('temas-grid');
-  grid.innerHTML='<div style="grid-column:1/-1;color:var(--text2);font-size:12px;padding:8px 0"><span class="spinner"></span>Buscando temas em alta...</div>';
+  grid.innerHTML='<div style="grid-column:1/-1;color:var(--text2);font-size:12px;padding:8px 0"><span class="spinner"></span>Buscando'+(query?' sobre "'+query+'"':' temas em alta')+'...</div>';
   grid.classList.remove('hidden');
+
   try{
     let temas=[];
     // Tenta via Netlify Function (Perplexity em tempo real)
     try{
-      const r=await fetch('/.netlify/functions/temas');
+      const url='/.netlify/functions/temas'+(query?'?query='+encodeURIComponent(query):'');
+      const r=await fetch(url);
       const d=await r.json();
       if(d.temas&&d.temas.length>0){temas=d.temas;}
     }catch(e){}
     // Fallback: Anthropic
     if(!temas.length){
-      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,messages:[{role:'user',content:'Sugira 6 temas específicos e interessantes sobre aprendizado de italiano, cultura italiana, viagens para a Itália ou gastronomia italiana para criar conteúdo no Instagram em 2026. Cada tema em uma linha, máx 12 palavras, sem numeração ou símbolos.'}]})});
+      const topico=query||'aprendizado de italiano, cultura italiana, viagens para a Itália ou gastronomia italiana';
+      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,messages:[{role:'user',content:'Sugira 6 temas específicos sobre '+topico+' para criar conteúdo no Instagram. Cada tema em uma linha, máx 12 palavras, sem numeração.'}]})});
       const d=await r.json();
       const txt=d.content?.[0]?.text||'';
       temas=txt.split('\n').filter(l=>l.trim()&&l.length>8).slice(0,6);
@@ -820,12 +848,7 @@ async function buscarTemas(){
     temas.forEach(t=>{
       const d=document.createElement('div');
       d.className='tema-item';d.textContent=t;
-      d.onclick=()=>{
-        document.getElementById('topic-input').value=t;
-        document.getElementById('topic-hint').textContent='✓ Tema selecionado';
-        document.getElementById('topic-hint').style.color='var(--orange)';
-        toast('✓ Tema selecionado!');
-      };
+      d.onclick=()=>selecionarTema(t);
       grid.appendChild(d);
     });
     toast('✅ '+temas.length+' temas encontrados!');
@@ -835,18 +858,54 @@ async function buscarTemas(){
   btn.textContent='✦ Temas em alta';btn.disabled=false;
 }
 
+async function selecionarTema(tema){
+  document.getElementById('topic-input').value=tema;
+  document.getElementById('topic-hint').textContent='✓ Tema selecionado — buscando contexto...';
+  document.getElementById('topic-hint').style.color='var(--orange)';
+
+  // Adiciona caixa de contexto
+  let ctxBox=document.getElementById('contexto-box');
+  if(!ctxBox){
+    ctxBox=document.createElement('div');
+    ctxBox.id='contexto-box';
+    ctxBox.className='contexto-box';
+    ctxBox.innerHTML='<div class="contexto-label">🔍 Contexto em tempo real</div><div id="contexto-texto"></div>';
+    document.querySelector('.topic-box').appendChild(ctxBox);
+  }
+  ctxBox.classList.add('show');
+  document.getElementById('contexto-texto').innerHTML='<span class="spinner"></span>Pesquisando informações sobre "'+tema+'"...';
+
+  try{
+    const r=await fetch('/.netlify/functions/temas?modo=aprofundar&query='+encodeURIComponent(tema));
+    const d=await r.json();
+    if(d.contexto){
+      document.getElementById('contexto-texto').textContent=d.contexto;
+      document.getElementById('topic-hint').textContent='✓ Tema selecionado com contexto real';
+      // Salva contexto pra usar na geração
+      window._contextoAtual=d.contexto;
+      toast('✅ Contexto carregado — pode gerar!');
+    }
+  }catch(e){
+    ctxBox.classList.remove('show');
+    window._contextoAtual='';
+    document.getElementById('topic-hint').textContent='✓ Tema selecionado';
+    toast('✓ Tema selecionado (contexto indisponível)');
+  }
+}
+
 function buildPrompt(){
   const tema=document.getElementById('topic-input').value.trim();
   const mod=S.modelo;const obj=S.objetivo;const tom=S.tom;
   const modelData=MODS[S.format]?.find(m=>m.id===mod);
 
+  const contexto=window._contextoAtual||'';
   const BASE=`Você é especialista em criação de conteúdo viral para o perfil do Silvano Formentin — professor brasileiro de italiano, apaixonado pela cultura italiana, com tom próximo, autêntico e envolvente.
 
 PÚBLICO: Brasileiros que amam a Itália, querem aprender italiano ou sonham em viajar para lá.
 OBJETIVO DO CONTEÚDO: ${obj}
 TOM DE VOZ: ${tom}
 TEMA: ${tema||'escolha o mais relevante para o nicho italiano'}
-MODELO ESCOLHIDO: ${modelData?.name||mod}`;
+MODELO ESCOLHIDO: ${modelData?.name||mod}${contexto?'\n\nCONTEXTO REAL PESQUISADO (use esses dados no roteiro):\n'+contexto:''}`;
 
   // Modelos com Método Hanna
   if(HANNA_PROMPTS[mod]){
@@ -947,6 +1006,9 @@ window.addEventListener('load',()=>{
     const h=document.getElementById('topic-hint');
     h.textContent=this.value.trim()?'✓ Tema definido':'Escreva o tema ou busque sugestões em alta';
     h.style.color=this.value.trim()?'var(--orange)':'';
+    window._contextoAtual='';
+    const cb=document.getElementById('contexto-box');
+    if(cb)cb.classList.remove('show');
   });
   renderObjs();renderMods();
 });

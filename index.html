@@ -838,7 +838,7 @@ async function buscarTemas(){
     // Fallback: Anthropic
     if(!temas.length){
       const topico=query||'aprendizado de italiano, cultura italiana, viagens para a Itália ou gastronomia italiana';
-      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,messages:[{role:'user',content:'Sugira 6 temas específicos sobre '+topico+' para criar conteúdo no Instagram. Cada tema em uma linha, máx 12 palavras, sem numeração.'}]})});
+      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,messages:[{role:'user',content:'Sugira 6 temas específicos sobre '+topico+' para criar conteúdo no Instagram. Cada tema em uma linha, máx 12 palavras, sem numeração.'}]})});
       const d=await r.json();
       const txt=d.content?.[0]?.text||'';
       temas=txt.split('\n').filter(l=>l.trim()&&l.length>8).slice(0,6);
@@ -966,7 +966,7 @@ async function gerar(){
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:buildPrompt()}]})
     });
     const d=await r.json();

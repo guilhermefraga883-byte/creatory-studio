@@ -90,10 +90,6 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
 .model-tag.viral{background:rgba(242,117,7,.15);color:var(--orange)}
 .model-tag.fraga{background:rgba(255,255,255,.06);color:var(--text3)}
 
-.toms{display:flex;flex-wrap:wrap;gap:7px}
-.tom{padding:5px 12px;background:var(--dark2);border:.5px solid var(--border);border-radius:999px;font-size:11px;font-weight:600;cursor:pointer;color:var(--text2)}
-.tom:hover{border-color:rgba(242,117,7,.4);color:var(--text)}
-.tom.active{background:rgba(242,117,7,.1);border-color:var(--orange);color:var(--orange)}
 
 .gen-btn{width:100%;padding:1rem;background:linear-gradient(135deg,var(--orange),var(--orange2));border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:900;letter-spacing:.06em;cursor:pointer;margin-top:.5rem;text-transform:uppercase;transition:opacity .2s}
 .gen-btn:hover{opacity:.9}
@@ -180,18 +176,7 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
   <div class="models-grid" id="mod-grid"></div>
 </div>
 
-<!-- STEP 5 -->
-<div class="step">
-  <div class="step-head"><div class="step-num">5</div><div class="step-title">Tom de voz</div></div>
-  <div class="toms">
-    <div class="tom active" data-val="inspiracional" onclick="selectTom(this)">Inspiracional</div>
-    <div class="tom" data-val="educativo" onclick="selectTom(this)">Educativo</div>
-    <div class="tom" data-val="provocador" onclick="selectTom(this)">Provocador</div>
-    <div class="tom" data-val="emocional" onclick="selectTom(this)">Emocional</div>
-    <div class="tom" data-val="divertido" onclick="selectTom(this)">Divertido</div>
-    <div class="tom" data-val="autoritativo" onclick="selectTom(this)">Autoritativo</div>
-  </div>
-</div>
+
 
 <button class="gen-btn" id="gen-btn" onclick="gerar()">▶ GERAR CONTEÚDO</button>
 
@@ -212,7 +197,7 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
 <div class="toast" id="toast"></div>
 
 <script>
-const S={format:'reels',objetivo:'engajamento',modelo:'tela_dividida',tom:'inspiracional'};
+const S={format:'reels',objetivo:'engajamento',modelo:'tela_dividida'};
 
 // SVG THUMBS por modelo
 const THUMBS={
@@ -802,10 +787,7 @@ const thumb=photo?`<img src="${photo}" style="width:100%;height:100%;object-fit:
   });
 }
 
-function selectTom(el){
-  document.querySelectorAll('.tom').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');S.tom=el.dataset.val;
-}
+
 
 async function buscarTemas(){
   const ant=getKey('ant');
@@ -903,7 +885,18 @@ function buildPrompt(){
 
 PÚBLICO: Brasileiros que amam a Itália, querem aprender italiano ou sonham em viajar para lá.
 OBJETIVO DO CONTEÚDO: ${obj}
-TOM DE VOZ: ${tom}
+TOM DE VOZ FIXO — SILVANO FORMENTIN:
+- Professor carismático, próximo e acolhedor — fala como quem conversa na sala de estar
+- Bem-humorado com leveza: brincadeiras leves, comparações cotidianas, humor afetuoso
+- Frases curtas, fáceis, jeito de fala espontânea
+- Sempre traz o público para dentro ("repete comigo", "olha só", "você já percebeu?")
+- Usa repetições, exemplos e analogias com a vida real
+- Referências: comida, família, viagens, fé, cultura italiana, cotidiano
+- Frases-gatilho: "Olha só que fácil", "Não tem mistério", "Italiano é pra todo mundo", "Errar faz parte", "Repete comigo", "Andiamo!"
+- Abre com "Ciao ragazzi!" quando natural, usa "Bravissimi!" pra elogio
+- NUNCA usa linguagem técnica, formalismo exagerado, termos em inglês ou frases elitistas
+- NUNCA começa pelo lado da gramática — sempre pela prática, pelo ouvido, pelo cotidiano
+- Motiva com afeto mas reforça que constância é indispensável
 TEMA: ${tema||'escolha o mais relevante para o nicho italiano'}
 MODELO ESCOLHIDO: ${modelData?.name||mod}${contexto?'\n\nCONTEXTO REAL PESQUISADO (use esses dados no roteiro):\n'+contexto:''}`;
 
@@ -1122,6 +1115,15 @@ const VISUAL_MODELS={
 - Logo "SF" discreto`
 };
 
+function contarSlides(text){
+  // Conta slides pelo padrão SLIDE X ou por linhas que começam com número
+  const matches=text.match(/SLIDE\s+\d+/gi)||text.match(/^##?\s*\d+/gm)||[];
+  if(matches.length>1) return Math.min(matches.length,8);
+  // Fallback: estima pelo tamanho do conteúdo
+  const linhas=text.split('\n').filter(l=>l.trim()).length;
+  return Math.min(Math.max(Math.round(linhas/4),4),8);
+}
+
 function abrirGPT(){
   const text=document.getElementById('result-content').textContent;
   if(!text){toast('⚠️ Gere o conteúdo primeiro');return;}
@@ -1131,24 +1133,38 @@ function abrirGPT(){
   const url=GPT_URLS[fmt];
   let finalText=text;
 
-  // Para carrossel, stories e post — monta prompt completo pro GPT
-  if(fmt!=='reels'){
+  if(fmt==='carrossel'){
     const visualModel=VISUAL_MODELS[mod]||'';
-    const isCarrossel=fmt==='carrossel';
-    const isStories=fmt==='stories';
-
-    let slideCount='';
-    if(isCarrossel) slideCount='Máximo 8 slides. ';
-
-    const promptGPT=`Crie um ${isCarrossel?'carrossel de Instagram':'post/sequência de stories'} com o conteúdo abaixo. ${isCarrossel?'Quero que você gere todos os slides separados, como imagens individuais, uma por slide, e não em uma grade única. '+slideCount:''}Mantenha a mesma identidade visual em todos os ${isCarrossel?'slides':'stories'}, baseada no padrão visual descrito. ${isCarrossel?'A capa deve ser mais chamativa, com imagem forte. Os demais slides podem usar elementos gráficos mais simples. ':''}Use exatamente os textos abaixo, sem mudar a copy. Entregue tudo pronto para postar. ${isCarrossel?'Gere todos os slides separadamente, todo de uma vez, 1 imagem por slide, e não em uma prancha/grade única. ':''}Use referência de imagem com elementos para facilitar a didática e HEADLINE com alguns destaques em caixa ALTA. O texto do corpo não pode ser muito pequeno (use todo o espaço disponível se precisar), para a leitura ser fácil, e pode ter quebras de linhas e destaques.
+    const nSlides=contarSlides(text);
+    const promptGPT=`Crie um carrossel de Instagram com ${nSlides} slides. Quero que você gere todos os slides separados, como imagens individuais, uma por slide, e não em uma grade única. Mantenha a mesma identidade visual em todos os slides baseada no padrão visual abaixo. A capa deve ser mais chamativa, com imagem forte. Os demais slides podem usar elementos gráficos mais simples. Use exatamente os textos abaixo, sem mudar a copy. Entregue tudo pronto para postar. Gere todos os slides separadamente, todo de uma vez, 1 imagem por slide, e não em uma prancha/grade única. Use referência de imagem com elementos para facilitar a didática e HEADLINE com alguns destaques em caixa ALTA. O texto do corpo não pode ser muito pequeno (use todo slide se precisar), para a leitura ser fácil e pode ter quebras de linhas e destaques.
 
 ${visualModel}
 
 CONTEÚDO:
 ${text}`;
+    finalText=promptGPT;
 
+  } else if(fmt==='stories'){
+    const visualModel=VISUAL_MODELS[mod]||'';
+    const promptGPT=`Crie uma sequência de stories para Instagram. Gere cada story como uma imagem individual separada, não em grade. Mantenha a mesma identidade visual em todos os stories baseada no padrão visual abaixo. Use exatamente os textos abaixo, sem mudar a copy. Entregue tudo pronto para postar, 1 imagem por story. Use HEADLINE em caixa ALTA onde indicado. O texto deve ser grande e legível.
+
+${visualModel}
+
+CONTEÚDO:
+${text}`;
+    finalText=promptGPT;
+
+  } else if(fmt==='post'){
+    const visualModel=VISUAL_MODELS[mod]||'';
+    const promptGPT=`Crie um post para Instagram. Use exatamente o texto abaixo, sem mudar a copy. Siga o padrão visual descrito. Entregue pronto para postar. Use HEADLINE em caixa ALTA onde indicado.
+
+${visualModel}
+
+CONTEÚDO:
+${text}`;
     finalText=promptGPT;
   }
+  // Reels: copia só o roteiro
 
   navigator.clipboard.writeText(finalText).then(()=>{
     const b=document.getElementById('gpt-btn');

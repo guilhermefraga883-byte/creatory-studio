@@ -19,7 +19,7 @@ exports.handler = async function(event) {
     const prompt = body.prompt || '';
     const system = body.system || '';
     const messages = body.messages || [];
-    const max_tokens = body.max_tokens || 2000;
+    const max_tokens = body.max_tokens || 1500;
 
     // Modo chat (com histórico) ou modo gerador (prompt simples)
     const msgs = messages.length > 0 ? messages : [{ role: 'user', content: prompt }];

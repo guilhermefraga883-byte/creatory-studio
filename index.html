@@ -1403,20 +1403,25 @@ ${contexto}
 
 CTA A USAR: ${ctaTextos[criarCTA]}
 
-Com base nessa conversa, gere um roteiro de Reels completo nas 8 camadas do funil pedagógico viral:
+INSTRUÇÕES IMPORTANTES:
+- Se na conversa já foi definido um gancho escrito, use EXATAMENTE esse gancho — não recrie, não melhore, não altere
+- Se na conversa já foi definida uma história ou ângulo, use como está — a conversa é a fonte da verdade
+- O que não foi definido na conversa, você cria seguindo a estrutura abaixo
 
-1. GANCHO VISUAL: instrução de cena para os primeiros 2 segundos + prompt de imagem em inglês para IA
-2. DUAS OPÇÕES DE GANCHO ESCRITO (Opção A e Opção B — texto que aparece na tela)
+Gere o roteiro de Reels completo nas 8 camadas do funil pedagógico viral:
+
+1. GANCHO VISUAL: instrução de cena para os primeiros 2 segundos + prompt de imagem em inglês
+2. GANCHO ESCRITO: use o que foi decidido na conversa. Se não foi decidido, crie duas opções (A e B)
 3-8. ROTEIRO FALADO CORRIDO (280-350 palavras):
 - Gancho falado + curiosidade (ritmo de jornalista, NÃO menciona italiano ainda)
 - Contexto Ponto A: história completa com detalhes reais, 40% do roteiro, SEM mencionar italiano
-- [RE-HOOK aqui: "e a parte mais importante ainda não apareceu"]
-- Correlação Ponto B: virada que conecta o assunto ao italiano
+- [RE-HOOK: "e a parte mais importante ainda não apareceu"]
+- Correlação Ponto B: virada que conecta ao italiano
 - Ensino + caso real de aluno do Silvano
-- Moral: frase memorável que devolve confiança à mulher 50+ com descendência italiana
+- Moral: frase que devolve confiança à mulher 50+ com descendência italiana
 - Autoridade + CTA
 
-TOM DO SILVANO: sala de casa, "repete comigo", exemplos da nona, "do jeito certo", "qualquer idade". NUNCA gramática, NUNCA travessão (—), NUNCA linguagem técnica.`
+TOM DO SILVANO: sala de casa, "repete comigo", exemplos da nona, "do jeito certo", "qualquer idade". NUNCA gramática, NUNCA travessão (—).`
   :
   `Você é especialista em conteúdo viral pedagógico para o Silvano Formentin, professor de italiano da maior escola de italiano da América Latina.
 
@@ -1425,10 +1430,15 @@ ${contexto}
 
 CTA A USAR: ${ctaTextos[criarCTA]}
 
-Com base nessa conversa, gere um Carrossel completo nas 7 camadas:
+INSTRUÇÕES IMPORTANTES:
+- Se na conversa já foi definido um gancho escrito, use EXATAMENTE esse gancho no Slide 1 — não recrie, não altere
+- Se na conversa já foi definida uma história ou ângulo, use como está
+- O que não foi definido na conversa, você cria seguindo a estrutura abaixo
+
+Gere o Carrossel completo nas 7 camadas:
 
 SLIDE 1: Gancho Escrito + Gancho Visual
-- Duas opções de texto (Opção A e B)
+- Use o gancho decidido na conversa. Se não decidido, crie duas opções (A e B)
 - Prompt de imagem em inglês
 
 SLIDE 2: 2° Gancho (segura quem passou o slide 1, aprofunda sem entregar ainda)
@@ -1443,10 +1453,10 @@ SLIDE 6: Moral (frase que devolve confiança à mulher 50+ com descendência ita
 
 SLIDE 7: Autoridade + CTA
 
-Para cada slide: texto do slide (máx 4 linhas) + direção visual + prompt de imagem em inglês.
-No final, lista TODOS os prompts de imagem numerados para gerar no GPT.
+Para cada slide: texto (máx 4 linhas) + direção visual + prompt de imagem em inglês.
+No final, lista TODOS os prompts de imagem numerados.
 
-TOM DO SILVANO: sala de casa, próximo, "do jeito certo", "qualquer idade". NUNCA gramática, NUNCA travessão (—).`;
+TOM DO SILVANO: sala de casa, "do jeito certo", "qualquer idade". NUNCA gramática, NUNCA travessão (—).`;
 
   try{
     const r=await fetch('/.netlify/functions/gerar',{

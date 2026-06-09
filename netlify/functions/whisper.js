@@ -1,6 +1,3 @@
-const FormData = require('form-data');
-const fetch = require('node-fetch');
-
 exports.handler = async function(event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -14,76 +11,103 @@ exports.handler = async function(event) {
 
   const OAI_KEY = process.env.OPENAI_KEY;
   if (!OAI_KEY) {
-    return { statusCode: 200, headers, body: JSON.stringify({ error: 'Chave OpenAI não configurada.' }) };
+    return { statusCode: 200, headers, body: JSON.stringify({ text: '', error: 'Chave OpenAI não configurada.' }) };
   }
 
   try {
-    // O body vem como base64 quando é multipart
     const buffer = Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8');
-    
-    // Extrai o arquivo de áudio do multipart
     const contentType = event.headers['content-type'] || event.headers['Content-Type'] || '';
-    const boundary = contentType.split('boundary=')[1];
-    
-    if (!boundary) {
-      return { statusCode: 200, headers, body: JSON.stringify({ error: 'Formato inválido.' }) };
+    const boundaryMatch = contentType.match(/boundary=(.+)/);
+    if (!boundaryMatch) {
+      return { statusCode: 200, headers, body: JSON.stringify({ text: '', error: 'Boundary não encontrado.' }) };
     }
+    const boundary = boundaryMatch[1].trim();
 
-    // Encontra o conteúdo do arquivo no multipart
-    const boundaryBuffer = Buffer.from('--' + boundary);
-    const parts = [];
-    let start = 0;
-    
-    while (true) {
-      const idx = buffer.indexOf(boundaryBuffer, start);
-      if (idx === -1) break;
-      const end = buffer.indexOf(boundaryBuffer, idx + boundaryBuffer.length);
-      if (end === -1) break;
-      const part = buffer.slice(idx + boundaryBuffer.length + 2, end - 2);
-      parts.push(part);
-      start = end;
-    }
-
-    // Pega o conteúdo do arquivo (segunda parte após o header)
+    // Extrai o arquivo de áudio do multipart manualmente
+    const boundaryBuf = Buffer.from('--' + boundary);
     let audioBuffer = null;
-    for (const part of parts) {
-      const headerEnd = part.indexOf('\r\n\r\n');
-      if (headerEnd !== -1) {
-        const header = part.slice(0, headerEnd).toString();
-        if (header.includes('filename')) {
-          audioBuffer = part.slice(headerEnd + 4);
-          break;
-        }
+    let pos = 0;
+
+    while (pos < buffer.length) {
+      const bStart = buffer.indexOf(boundaryBuf, pos);
+      if (bStart === -1) break;
+      const headerStart = bStart + boundaryBuf.length + 2;
+      const headerEnd = buffer.indexOf('\r\n\r\n', headerStart);
+      if (headerEnd === -1) break;
+      const partHeader = buffer.slice(headerStart, headerEnd).toString();
+      const dataStart = headerEnd + 4;
+      const nextBoundary = buffer.indexOf(boundaryBuf, dataStart);
+      const dataEnd = nextBoundary === -1 ? buffer.length : nextBoundary - 2;
+      if (partHeader.includes('filename')) {
+        audioBuffer = buffer.slice(dataStart, dataEnd);
+        break;
       }
+      pos = nextBoundary === -1 ? buffer.length : nextBoundary;
     }
 
-    if (!audioBuffer) {
-      return { statusCode: 200, headers, body: JSON.stringify({ error: 'Arquivo de áudio não encontrado.' }) };
+    if (!audioBuffer || audioBuffer.length === 0) {
+      return { statusCode: 200, headers, body: JSON.stringify({ text: '', error: 'Áudio não encontrado no request.' }) };
     }
 
-    // Envia pro Whisper
-    const form = new FormData();
-    form.append('file', audioBuffer, { filename: 'audio.webm', contentType: 'audio/webm' });
-    form.append('model', 'whisper-1');
-    form.append('language', 'pt');
+    // Monta multipart manualmente para enviar ao Whisper
+    const whisperBoundary = '----WhisperBoundary' + Date.now();
+    const CRLF = '\r\n';
+    const partHeader = [
+      '--' + whisperBoundary,
+      'Content-Disposition: form-data; name="file"; filename="audio.webm"',
+      'Content-Type: audio/webm',
+      '',
+      ''
+    ].join(CRLF);
+    const modelPart = [
+      '--' + whisperBoundary,
+      'Content-Disposition: form-data; name="model"',
+      '',
+      'whisper-1'
+    ].join(CRLF);
+    const langPart = [
+      '--' + whisperBoundary,
+      'Content-Disposition: form-data; name="language"',
+      '',
+      'pt'
+    ].join(CRLF);
+    const closing = CRLF + '--' + whisperBoundary + '--';
 
-    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OAI_KEY}`,
-        ...form.getHeaders()
-      },
-      body: form
+    const bodyParts = [
+      Buffer.from(partHeader),
+      audioBuffer,
+      Buffer.from(CRLF + modelPart + CRLF + langPart + closing)
+    ];
+    const bodyBuffer = Buffer.concat(bodyParts);
+
+    const https = require('https');
+    const result = await new Promise((resolve, reject) => {
+      const options = {
+        hostname: 'api.openai.com',
+        path: '/v1/audio/transcriptions',
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + OAI_KEY,
+          'Content-Type': 'multipart/form-data; boundary=' + whisperBoundary,
+          'Content-Length': bodyBuffer.length
+        }
+      };
+      const req = https.request(options, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          try { resolve(JSON.parse(data)); }
+          catch(e) { resolve({ text: '' }); }
+        });
+      });
+      req.on('error', reject);
+      req.write(bodyBuffer);
+      req.end();
     });
 
-    const data = await response.json();
-    return { statusCode: 200, headers, body: JSON.stringify({ text: data.text || '' }) };
+    return { statusCode: 200, headers, body: JSON.stringify({ text: result.text || '' }) };
 
   } catch (err) {
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ error: err.message, text: '' })
-    };
+    return { statusCode: 200, headers, body: JSON.stringify({ text: '', error: err.message }) };
   }
 };

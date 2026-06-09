@@ -17,9 +17,23 @@ exports.handler = async function(event) {
   try {
     const body = JSON.parse(event.body || '{}');
     const prompt = body.prompt || '';
-    if (!prompt) {
-      return { statusCode: 200, headers, body: JSON.stringify({ error: { message: 'Prompt vazio.' } }) };
+    const system = body.system || '';
+    const messages = body.messages || [];
+    const max_tokens = body.max_tokens || 2000;
+
+    // Modo chat (com histórico) ou modo gerador (prompt simples)
+    const msgs = messages.length > 0 ? messages : [{ role: 'user', content: prompt }];
+
+    if (!msgs.length || !msgs[msgs.length - 1]?.content) {
+      return { statusCode: 200, headers, body: JSON.stringify({ error: { message: 'Mensagem vazia.' } }) };
     }
+
+    const payload = {
+      model: 'claude-sonnet-4-6',
+      max_tokens,
+      messages: msgs
+    };
+    if (system) payload.system = system;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -28,11 +42,7 @@ exports.handler = async function(event) {
         'x-api-key': ANT_KEY,
         'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body: JSON.stringify(payload)
     });
 
     const data = await response.json();

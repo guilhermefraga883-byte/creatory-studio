@@ -851,12 +851,24 @@ Retorne apenas os 4 assuntos no formato acima, sem introdução.`})
     temas.forEach(t=>{
       const titulo=typeof t==='string'?t:t.titulo;
       const contexto=typeof t==='string'?'':t.contexto;
+      const historia=typeof t==='string'?'':t.historia;
+      const angulo=typeof t==='string'?'':t.angulo;
       const fonte=typeof t==='string'?'':t.fonte;
       const d=document.createElement('div');
       d.className='tema-item';
       d.style.cssText='padding:10px 12px;cursor:pointer';
-      d.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px">${titulo}</div>${contexto?`<div style="font-size:11px;color:var(--text2);line-height:1.4;margin-bottom:3px">${contexto}</div>`:''}${fonte?`<div style="font-size:10px;color:var(--orange);opacity:0.7">📌 ${fonte}</div>`:''}`;
-      d.onclick=()=>selecionarAssunto(titulo,contexto+(fonte?'\n\nFonte: '+fonte:''));
+      d.innerHTML=`
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">${titulo}</div>
+        ${contexto?`<div style="font-size:11px;color:var(--text2);line-height:1.4;margin-bottom:4px">${contexto}</div>`:''}
+        ${angulo?`<div style="font-size:11px;color:var(--orange);opacity:0.85;margin-bottom:3px">💡 ${angulo}</div>`:''}
+        ${fonte?`<div style="font-size:10px;color:var(--text3)">📌 ${fonte}</div>`:''}
+      `;
+      d.onclick=()=>selecionarAssunto(titulo, [
+        contexto,
+        historia?'HISTÓRIA COMPLETA:\n'+historia:'',
+        angulo?'ÂNGULO SUGERIDO: '+angulo:'',
+        fonte?'Fonte: '+fonte:''
+      ].filter(Boolean).join('\n\n'));
       grid.appendChild(d);
     });
     toast('✅ '+(temas.length)+' assuntos encontrados!');
@@ -994,9 +1006,9 @@ PASSO 3 — GANCHO FALADO + CURIOSIDADE:
 Primeiras frases faladas. Ritmo de contador de histórias. Abre curiosidade sem entregar o ensino. Tom de sala de casa.
 [RE-HOOK aos 30-40s: insira frase de retenção para segurar quem está saindo]
 
-PASSO 4 — CONTEXTO (Ponto A):
-Conta a história do assunto universal com detalhes reais. Modo jornalista/contador de histórias. Frase longa de contexto + frase curta de impacto. Não resolve ainda.
-[RE-HOOK ao 1min: insira frase de retenção — "e a parte mais importante ainda não apareceu"]
+PASSO 4 — CONTEXTO (Ponto A) — ESSA É A PARTE MAIS LONGA:
+Conta a história completa do assunto universal. Aqui você é JORNALISTA e CONTADOR DE HISTÓRIAS ao mesmo tempo. Use TODOS os detalhes do contexto fornecido. Esta parte deve ocupar pelo menos 40% do roteiro. Apresente os personagens, o que aconteceu, a cronologia, os detalhes que prendem atenção, os números concretos, o detalhe surpreendente. Frase longa de contexto + frase curta de impacto. NÃO resolva ainda. Mantenha a tensão aberta. NÃO mencione italiano ainda.
+[RE-HOOK ao 1min: insira frase de retenção — use o banco: "e a parte mais importante ainda não apareceu" / "só que o que ninguém está falando é isso" / "mas existe uma camada mais profunda nessa história"]
 
 PASSO 5 — CORRELAÇÃO (Ponto B):
 A virada. Conexão explícita entre o assunto e o que acontece com quem tenta aprender italiano. Dita claramente, não subentendida.
@@ -1064,8 +1076,9 @@ Direção visual: [detalhe ou nova imagem que aprofunda]
 Prompt de imagem: [prompt em inglês]
 Elemento de retenção: [o que faz passar para o slide 3]
 
-SLIDE 3 — CONTEXTO (Ponto A):
-Texto do slide: [narrativa curta com detalhe real — máx 4 linhas]
+SLIDE 3 — CONTEXTO (Ponto A) — MAIS DETALHADO POSSÍVEL:
+Use TODOS os detalhes do contexto fornecido. Apresente personagens, cronologia, o detalhe surpreendente, números concretos. Pode ocupar 2 slides se a história for rica. Modo jornalista. NÃO mencione italiano ainda. Mantenha a tensão aberta.
+Texto do slide: [narrativa com detalhe real — máx 4 linhas por slide]
 Direção visual: [imagem que ilustra o contexto]
 Prompt de imagem: [prompt em inglês]
 

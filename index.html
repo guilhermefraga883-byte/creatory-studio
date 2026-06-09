@@ -123,14 +123,7 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
 </div>
 
 <div class="api-block">
-  <div class="api-title">🔑 Chaves de API</div>
-  <div class="api-row">
-    <span class="api-label">Anthropic</span>
-    <input class="api-input" id="key-ant" type="password" placeholder="sk-ant-...">
-    <button class="api-save" onclick="salvarKey('ant')">Salvar</button>
-  </div>
-
-  <div class="api-status" id="api-status">Chaves ficam salvas no navegador.</div>
+  <div class="api-status ok" id="api-status">✅ Conectado ao servidor — pronto para gerar!</div>
 </div>
 
 <!-- STEP 1 -->
@@ -826,27 +819,22 @@ async function buscarTemas(){
       if(d.temas&&d.temas.length>0){temas=d.temas;}
     }catch(e){}
 
-    // Fallback: Claude com instrução aprofundada
-    if(!temas.length&&ant){
-      const r=await fetch('https://api.anthropic.com/v1/messages',{
+    // Fallback: via função Netlify
+    if(!temas.length){
+      const r=await fetch('/.netlify/functions/gerar',{
         method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01'},
-        body:JSON.stringify({
-          model:'claude-haiku-4-5-20251001',
-          max_tokens:600,
-          messages:[{role:'user',content:`Sugira 4 assuntos ESPECÍFICOS e REAIS sobre: ${cat}
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({prompt:`Sugira 4 assuntos ESPECÍFICOS e REAIS sobre: ${cat}
 
 Para cada assunto entregue:
 ASSUNTO: [título curto e impactante, max 12 palavras]
 CONTEXTO: [1-2 frases explicando o que está acontecendo, por que está em alta, dado concreto se houver]
 
 Foco: público brasileiro 50+ anos, descendência italiana, sonho de aprender italiano.
-Retorne apenas os 4 assuntos no formato acima, sem introdução.`}]
-        })
+Retorne apenas os 4 assuntos no formato acima, sem introdução.`})
       });
       const d=await r.json();
       const txt=d.content?.[0]?.text||'';
-      // Parse formato ASSUNTO/CONTEXTO
       const blocos=txt.split(/ASSUNTO:/i).filter(b=>b.trim());
       temas=blocos.map(b=>{
         const partes=b.split(/CONTEXTO:/i);
@@ -1152,8 +1140,6 @@ MODELO ESCOLHIDO: ${modelData?.name||mod}`;
 }
 
 async function gerar(){
-  const ant=getKey('ant');
-  if(!ant){toast('⚠️ Configure a chave Anthropic primeiro');return;}
 
   // Validar entrada
   if(S.modo==='colar'){
@@ -1168,10 +1154,10 @@ async function gerar(){
   const box=document.getElementById('result-box');box.style.display='none';
 
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{
+    const r=await fetch('/.netlify/functions/gerar',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,messages:[{role:'user',content:buildPrompt()}]})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt:buildPrompt()})
     });
     const d=await r.json();
     if(d.error)throw new Error(d.error.message);

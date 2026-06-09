@@ -1,6 +1,12 @@
 [build]
   functions = "netlify/functions"
 
+[functions]
+  node_bundler = "esbuild"
+
+[functions."gerar"]
+  timeout = 30
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

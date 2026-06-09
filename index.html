@@ -270,16 +270,8 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
 <!-- PAINEL CRIAR ROTEIRO -->
 <div class="tab-panel" id="tab-criar">
   <div style="background:var(--dark2);border:.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem">
-    <div style="font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">📋 Contexto da conversa</div>
-    <div id="criar-contexto" style="font-size:13px;color:var(--text2);line-height:1.6;min-height:60px">Nenhuma conversa ainda. Vai na aba Conversar primeiro!</div>
-  </div>
-
-  <div style="background:var(--dark2);border:.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem">
-    <div style="font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">🎯 Ângulos sugeridos</div>
-    <div id="criar-angulos" style="display:flex;flex-direction:column;gap:8px">
-      <div style="font-size:13px;color:var(--text3)">Clique em "Sugerir ângulos" para ver as opções.</div>
-    </div>
-    <button onclick="sugerirAngulos()" id="btn-angulos" style="margin-top:12px;width:100%;padding:9px;background:var(--surf2);border:.5px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-weight:700;cursor:pointer">✨ Sugerir ângulos</button>
+    <div style="font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">📋 O que foi decidido na conversa</div>
+    <div id="criar-contexto" style="font-size:13px;color:var(--text2);line-height:1.6;min-height:40px">Nenhuma conversa ainda. Vai na aba Conversar primeiro!</div>
   </div>
 
   <div style="background:var(--dark2);border:.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem">
@@ -1379,81 +1371,15 @@ function setCriarCTA(el,cta){
 }
 
 function irCriarRoteiro(){
-  // Pega resumo da conversa e vai pra aba criar
-  const msgs=CHAT_HISTORY.filter(m=>m.role==='user').map(m=>m.content).join(' | ');
-  if(!msgs){toast('⚠️ Conversa antes de criar o roteiro!');return;}
-  document.getElementById('criar-contexto').textContent=msgs.slice(0,300)+(msgs.length>300?'...':'');
-  anguloEscolhido='';
-  document.getElementById('criar-angulos').innerHTML='<div style="font-size:13px;color:var(--text3)">Clique em "Sugerir ângulos" para ver as opções.</div>';
+  if(!CHAT_HISTORY.length){toast('⚠️ Conversa antes de criar o roteiro!');return;}
+  const resumo=CHAT_HISTORY.map(m=>(m.role==='user'?'Você: ':'Assistente: ')+m.content).join('\n\n');
+  document.getElementById('criar-contexto').textContent=resumo.slice(0,600)+(resumo.length>600?'...':'');
   mudarAba('criar');
-}
-
-async function sugerirAngulos(){
-  const contexto=document.getElementById('criar-contexto').textContent;
-  if(!contexto||contexto.includes('Nenhuma conversa')){toast('⚠️ Vai na aba Conversar primeiro!');return;}
-  const btn=document.getElementById('btn-angulos');
-  btn.disabled=true;btn.textContent='⏳ Gerando ângulos...';
-  try{
-    const r=await fetch('/.netlify/functions/gerar',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        prompt:`Com base nesse contexto de conversa sobre conteúdo para o Silvano Formentin (professor de italiano, avatar: mulher 50+, descendência italiana):
-
-CONTEXTO: ${contexto}
-
-Sugira 3 ângulos diferentes para um vídeo/carrossel no formato pedagógico viral. Cada ângulo deve ter:
-- Um gancho inicial impactante (o que aparece na tela)
-- A história que será contada (assunto universal)
-- A virada para o italiano (como conecta ao nicho)
-
-Formato de resposta:
-ÂNGULO 1: [nome curto]
-GANCHO: [frase de gancho]
-HISTÓRIA: [o que você vai contar]
-VIRADA: [como conecta ao italiano]
----
-ÂNGULO 2: ...
----
-ÂNGULO 3: ...`,
-        max_tokens:800
-      })
-    });
-    const d=await r.json();
-    const txt=d.content?.[0]?.text||'';
-    const blocos=txt.split('---').filter(b=>b.trim());
-    const el=document.getElementById('criar-angulos');
-    el.innerHTML='';
-    blocos.forEach((b,i)=>{
-      const nomeMatch=b.match(/ÂNGULO \d+:\s*(.+)/i);
-      const ganchoMatch=b.match(/GANCHO:\s*(.+)/i);
-      const historiaMatch=b.match(/HISTÓRIA:\s*([\s\S]+?)(?=VIRADA:|$)/i);
-      const viradaMatch=b.match(/VIRADA:\s*(.+)/i);
-      if(!nomeMatch)return;
-      const div=document.createElement('div');
-      div.style.cssText='padding:12px;background:var(--dark3);border:.5px solid var(--border);border-radius:10px;cursor:pointer';
-      div.innerHTML=`
-        <div style="font-size:12px;font-weight:800;color:var(--orange);margin-bottom:4px">${nomeMatch[1].trim()}</div>
-        ${ganchoMatch?`<div style="font-size:12px;color:var(--text);margin-bottom:3px">🎯 <b>Gancho:</b> ${ganchoMatch[1].trim()}</div>`:''}
-        ${historiaMatch?`<div style="font-size:11px;color:var(--text2);margin-bottom:3px">📖 ${historiaMatch[1].trim().replace(/\n/g,' ')}</div>`:''}
-        ${viradaMatch?`<div style="font-size:11px;color:var(--green)">🔄 ${viradaMatch[1].trim()}</div>`:''}
-      `;
-      div.onclick=()=>{
-        document.querySelectorAll('#criar-angulos > div').forEach(d=>d.style.borderColor='var(--border)');
-        div.style.borderColor='var(--orange)';
-        anguloEscolhido=b;
-        toast('✓ Ângulo selecionado!');
-      };
-      el.appendChild(div);
-    });
-  }catch(err){toast('❌ Erro: '+err.message);}
-  btn.disabled=false;btn.textContent='✨ Sugerir ângulos';
 }
 
 async function gerarDoChat(){
   const contexto=document.getElementById('criar-contexto').textContent;
   if(!contexto||contexto.includes('Nenhuma')){toast('⚠️ Vai na aba Conversar primeiro!');return;}
-  if(!anguloEscolhido){toast('⚠️ Escolhe um ângulo antes de gerar!');return;}
 
   const box=document.getElementById('criar-result-box');
   const content=document.getElementById('criar-result-content');
@@ -1470,60 +1396,57 @@ async function gerarDoChat(){
   };
 
   const prompt=criarFormat==='reels'?
-  `Você é especialista em conteúdo viral pedagógico para o Silvano Formentin, professor de italiano.
+  `Você é especialista em conteúdo viral pedagógico para o Silvano Formentin, professor de italiano da maior escola de italiano da América Latina.
 
-CONTEXTO DA CONVERSA: ${contexto}
+CONVERSA QUE DEFINIU O TEMA E O CONTEXTO:
+${contexto}
 
-ÂNGULO ESCOLHIDO: ${anguloEscolhido}
+CTA A USAR: ${ctaTextos[criarCTA]}
 
-CTA: ${ctaTextos[criarCTA]}
+Com base nessa conversa, gere um roteiro de Reels completo nas 8 camadas do funil pedagógico viral:
 
-Gere um roteiro de Reels completo nas 8 camadas do funil pedagógico viral:
-
-1. GANCHO VISUAL: instrução de cena + prompt de imagem em inglês para IA
-2. DUAS OPÇÕES DE GANCHO ESCRITO (Opção A e Opção B)
+1. GANCHO VISUAL: instrução de cena para os primeiros 2 segundos + prompt de imagem em inglês para IA
+2. DUAS OPÇÕES DE GANCHO ESCRITO (Opção A e Opção B — texto que aparece na tela)
 3-8. ROTEIRO FALADO CORRIDO (280-350 palavras):
-- Gancho falado + curiosidade (ritmo de jornalista)
-- Contexto Ponto A: história completa, 40% do roteiro, SEM mencionar italiano
-- [RE-HOOK: "e a parte mais importante ainda não apareceu"]
-- Correlação Ponto B: virada que conecta ao italiano
-- Ensino + caso real de aluno
-- Moral: frase que devolve confiança à mulher 50+ com descendência italiana
-- Autoridade + CTA acima
+- Gancho falado + curiosidade (ritmo de jornalista, NÃO menciona italiano ainda)
+- Contexto Ponto A: história completa com detalhes reais, 40% do roteiro, SEM mencionar italiano
+- [RE-HOOK aqui: "e a parte mais importante ainda não apareceu"]
+- Correlação Ponto B: virada que conecta o assunto ao italiano
+- Ensino + caso real de aluno do Silvano
+- Moral: frase memorável que devolve confiança à mulher 50+ com descendência italiana
+- Autoridade + CTA
 
-TOM DO SILVANO: sala de casa, "repete comigo", exemplos da nona, "do jeito certo", "qualquer idade". NUNCA gramática, NUNCA travessão.`
+TOM DO SILVANO: sala de casa, "repete comigo", exemplos da nona, "do jeito certo", "qualquer idade". NUNCA gramática, NUNCA travessão (—), NUNCA linguagem técnica.`
   :
-  `Você é especialista em conteúdo viral pedagógico para o Silvano Formentin, professor de italiano.
+  `Você é especialista em conteúdo viral pedagógico para o Silvano Formentin, professor de italiano da maior escola de italiano da América Latina.
 
-CONTEXTO DA CONVERSA: ${contexto}
+CONVERSA QUE DEFINIU O TEMA E O CONTEXTO:
+${contexto}
 
-ÂNGULO ESCOLHIDO: ${anguloEscolhido}
+CTA A USAR: ${ctaTextos[criarCTA]}
 
-CTA: ${ctaTextos[criarCTA]}
-
-Gere um Carrossel completo nas 7 camadas:
+Com base nessa conversa, gere um Carrossel completo nas 7 camadas:
 
 SLIDE 1: Gancho Escrito + Gancho Visual
 - Duas opções de texto (Opção A e B)
 - Prompt de imagem em inglês
 
-SLIDE 2: 2° Gancho (segura quem passou o slide 1)
+SLIDE 2: 2° Gancho (segura quem passou o slide 1, aprofunda sem entregar ainda)
 
-SLIDE 3: Contexto Ponto A + imagem (história completa, SEM italiano ainda)
+SLIDE 3: Contexto Ponto A + imagem (história completa com detalhes reais, SEM mencionar italiano ainda)
 
-SLIDE 4: Correlação Ponto B (virada para o italiano)
+SLIDE 4: Correlação Ponto B (virada que conecta ao italiano)
 
-SLIDE 5: Ensino + caso real de aluno
+SLIDE 5: Ensino + caso real de aluno do Silvano
 
-SLIDE 6: Moral (frase que devolve confiança à mulher 50+ com descendência)
+SLIDE 6: Moral (frase que devolve confiança à mulher 50+ com descendência italiana)
 
 SLIDE 7: Autoridade + CTA
 
-Para cada slide: texto do slide + direção visual + prompt de imagem em inglês.
+Para cada slide: texto do slide (máx 4 linhas) + direção visual + prompt de imagem em inglês.
+No final, lista TODOS os prompts de imagem numerados para gerar no GPT.
 
-TOM DO SILVANO: sala de casa, próximo, "do jeito certo", "qualquer idade". NUNCA gramática, NUNCA travessão.
-
-No final, lista todos os prompts de imagem numerados para gerar no GPT.`;
+TOM DO SILVANO: sala de casa, próximo, "do jeito certo", "qualquer idade". NUNCA gramática, NUNCA travessão (—).`;
 
   try{
     const r=await fetch('/.netlify/functions/gerar',{
@@ -1567,7 +1490,16 @@ CONTEXTO RÁPIDO:
 - Tom do Silvano: sala de casa, acolhedor, "repete comigo", exemplos da nona
 - Formato de conteúdo: funil pedagógico viral — começa num assunto universal (Itália, Papa, catolicismo, descendência, estilo de vida italiano) e transiciona para o nicho de italiano
 
-Converse livremente sobre ideias de conteúdo. Quando o usuário pedir para gerar roteiro, avise que vai gerar e pergunte: é Reels ou Carrossel? Qual o CTA (seguir / comentário / link na bio)?`;
+SUA FUNÇÃO AQUI É APENAS:
+1. Conversar sobre ideias de conteúdo
+2. Ajudar a encontrar e validar o tema certo
+3. Discutir o contexto e a história por trás do tema
+4. Quando o tema estiver definido, dizer: "Ótimo! Agora clica no botão laranja aqui embaixo pra criar o roteiro."
+
+NUNCA gere roteiros, nunca escreva estruturas de vídeo, nunca produza conteúdo pronto.
+Se o usuário pedir pra gerar, responda: "Perfeito! O tema está definido. Clica no botão 'Criar Roteiro com esse tema' aqui embaixo — é lá que a mágica acontece!"
+
+Seja direto, objetivo e útil. Respostas curtas.`;
 
 async function enviarChat(){
   const input=document.getElementById('chat-input');
@@ -1578,15 +1510,43 @@ async function enviarChat(){
   adicionarMensagem('user',msg);
   CHAT_HISTORY.push({role:'user',content:msg});
   document.getElementById('btn-send').disabled=true;
-  const typing=adicionarMensagem('bot','<span class="spinner"></span> Pensando...',true);
+
+  // Detecta se a mensagem precisa de busca em tempo real
+  const precisaBusca=/papa|vaticano|itália|italia|catolicismo|notícia|hoje|agora|semana|acontecendo|atual|recente|novo|lançou|morreu|eleição|evento|viral|alta/i.test(msg);
+
+  let contextoPplx='';
+  const typing=adicionarMensagem('bot',`<span class="spinner"></span> ${precisaBusca?'Buscando informações atuais...':'Pensando...'}`,true);
+
+  // Se precisar, busca no Perplexity primeiro
+  if(precisaBusca){
+    try{
+      const rp=await fetch('/.netlify/functions/temas?categoria='+encodeURIComponent(msg.slice(0,80)),{});
+      const dp=await rp.json();
+      if(dp.temas&&dp.temas.length>0){
+        contextoPplx='\n\nINFORMAÇÕES ATUAIS ENCONTRADAS:\n'+dp.temas.map(t=>
+          `- ${t.titulo}${t.historia?' — '+t.historia:''}${t.fonte?' (Fonte: '+t.fonte+')':''}`
+        ).join('\n');
+      }
+    }catch(e){/* silencioso se falhar */}
+    typing.querySelector('.spinner').nextSibling.textContent=' Elaborando resposta...';
+  }
+
   try{
+    const mensagens=CHAT_HISTORY.slice(-4);
+    // Injeta contexto do Perplexity na última mensagem se houver
+    if(contextoPplx){
+      mensagens[mensagens.length-1]={
+        role:'user',
+        content:msg+contextoPplx
+      };
+    }
     const r=await fetch('/.netlify/functions/gerar',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         system:CHAT_SYSTEM,
-        messages:CHAT_HISTORY.slice(-4),
-        max_tokens:1200
+        messages:mensagens,
+        max_tokens:1000
       })
     });
     const d=await r.json();

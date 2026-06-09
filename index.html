@@ -48,16 +48,6 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
 .topic-hint{font-size:11px;color:var(--text3)}
 .btn-temas{padding:6px 14px;background:var(--surf2);border:.5px solid var(--border);border-radius:8px;color:var(--text);font-size:11px;font-weight:700;cursor:pointer}
 .btn-temas:hover{border-color:var(--orange);color:var(--orange)}
-.search-row{display:flex;gap:8px;margin-top:8px;align-items:center}
-.search-row.hidden{display:none}
-.search-input{flex:1;background:rgba(0,0,0,.4);border:.5px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:12px;font-family:'Barlow',sans-serif;outline:none}
-.search-input:focus{border-color:rgba(242,117,7,.4)}
-.search-input::placeholder{color:var(--text3)}
-.btn-buscar{padding:7px 14px;background:var(--orange);border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
-.btn-buscar:hover{background:var(--orange2)}
-.contexto-box{background:rgba(242,117,7,.04);border:.5px solid rgba(242,117,7,.2);border-radius:10px;padding:.75rem 1rem;margin-top:10px;font-size:11.5px;color:var(--text2);line-height:1.6;display:none}
-.contexto-box.show{display:block}
-.contexto-label{font-size:9.5px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
 .temas-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .temas-grid.hidden{display:none}
 .tema-item{background:var(--surf);border:.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;cursor:pointer;line-height:1.4;color:var(--text2)}
@@ -90,6 +80,10 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
 .model-tag.viral{background:rgba(242,117,7,.15);color:var(--orange)}
 .model-tag.fraga{background:rgba(255,255,255,.06);color:var(--text3)}
 
+.toms{display:flex;flex-wrap:wrap;gap:7px}
+.tom{padding:5px 12px;background:var(--dark2);border:.5px solid var(--border);border-radius:999px;font-size:11px;font-weight:600;cursor:pointer;color:var(--text2)}
+.tom:hover{border-color:rgba(242,117,7,.4);color:var(--text)}
+.tom.active{background:rgba(242,117,7,.1);border-color:var(--orange);color:var(--orange)}
 
 .gen-btn{width:100%;padding:1rem;background:linear-gradient(135deg,var(--orange),var(--orange2));border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:900;letter-spacing:.06em;cursor:pointer;margin-top:.5rem;text-transform:uppercase;transition:opacity .2s}
 .gen-btn:hover{opacity:.9}
@@ -107,6 +101,9 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark2);border:.5px solid var(--border);border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modo-tabs{display:flex;gap:8px;margin-bottom:12px}
+.modo-tab{flex:1;padding:8px;background:var(--dark2);border:.5px solid var(--border);border-radius:8px;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer}
+.modo-tab.active{background:rgba(242,117,7,.1);border-color:var(--orange);color:var(--orange)}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -122,7 +119,7 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
       <div class="logo-sub">Silvano Formentin · Italiano</div>
     </div>
   </div>
-  <div class="badge">v2.2</div>
+  <div class="badge">v3.0</div>
 </div>
 
 <div class="api-block">
@@ -138,18 +135,45 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
 
 <!-- STEP 1 -->
 <div class="step">
-  <div class="step-head"><div class="step-num">1</div><div class="step-title">Sobre o que vai ser?</div></div>
-  <div class="topic-box">
-    <textarea class="topic-input" id="topic-input" placeholder="Ex: por que aprender italiano muda completamente sua viagem para a Itália..."></textarea>
-    <div class="topic-footer">
-      <span class="topic-hint" id="topic-hint">Escreva o tema ou busque sugestões em alta</span>
-      <button class="btn-temas" id="tema-btn" onclick="buscarTemas()">✦ Temas em alta</button>
+  <div class="step-head"><div class="step-num">1</div><div class="step-title">Assunto universal</div></div>
+
+  <!-- Dois modos de entrada -->
+  <div class="modo-tabs">
+    <button class="modo-tab active" id="tab-busca" onclick="setModo('busca')">🔍 Buscar em alta</button>
+    <button class="modo-tab" id="tab-colar" onclick="setModo('colar')">📋 Colar conteúdo</button>
+  </div>
+
+  <!-- MODO 1: Busca inteligente por categoria -->
+  <div id="modo-busca">
+    <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px" id="cat-chips">
+      <div class="chip active" data-val="italia" onclick="selectCat(this)">🇮🇹 Itália em alta</div>
+      <div class="chip" data-val="papa" onclick="selectCat(this)">✝️ Papa / Vaticano</div>
+      <div class="chip" data-val="descendencia" onclick="selectCat(this)">👨‍👩‍👧 Descendência italiana</div>
+      <div class="chip" data-val="estilo" onclick="selectCat(this)">☀️ Estilo de vida</div>
+      <div class="chip" data-val="hack" onclick="selectCat(this)">🧠 Hack de aprendizado</div>
+      <div class="chip" data-val="catolicismo" onclick="selectCat(this)">⛪ Catolicismo</div>
     </div>
-    <div class="search-row hidden" id="search-row">
-      <input class="search-input" id="search-query" placeholder="Ex: gastronomia italiana, viagem Roma, pronúncia italiana..." onkeydown="if(event.key==='Enter')buscarTemas()">
-      <button class="btn-buscar" onclick="buscarTemas()">Buscar</button>
-    </div>
+    <button class="btn-temas" id="tema-btn" onclick="buscarTemas()">✦ Buscar assuntos em alta</button>
     <div class="temas-grid hidden" id="temas-grid"></div>
+  </div>
+
+  <!-- MODO 2: Colar conteúdo -->
+  <div id="modo-colar" style="display:none">
+    <textarea class="topic-input" id="content-input" placeholder="Cole aqui a transcrição do vídeo do TikTok/Instagram, a notícia ou o conteúdo que você quer usar como base..." style="min-height:120px"></textarea>
+    <div style="font-size:11px;color:var(--text3);margin-top:6px">O sistema vai analisar, extrair o assunto universal e montar o roteiro baseado nisso.</div>
+  </div>
+
+  <!-- Campo de enriquecimento — aparece sempre após selecionar/colar -->
+  <div id="enrich-box" style="display:none;margin-top:12px">
+    <div style="font-size:10px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">+ Enriquecer com mais contexto (opcional)</div>
+    <textarea class="topic-input" id="enrich-input" placeholder="Encontrou um vídeo do TikTok com 2M de views sobre esse assunto? Cole a transcrição aqui. Adicionou dados extras? Manda. Quanto mais contexto, mais rico o roteiro." style="min-height:80px;font-size:12px"></textarea>
+  </div>
+
+  <!-- Tema selecionado (exibição) -->
+  <div id="tema-selecionado" style="display:none;margin-top:10px;background:rgba(242,117,7,.08);border:.5px solid rgba(242,117,7,.3);border-radius:10px;padding:10px 12px">
+    <div style="font-size:10px;color:var(--orange);font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">✓ Assunto selecionado</div>
+    <div id="tema-texto" style="font-size:13px;color:var(--text);line-height:1.5"></div>
+    <button onclick="limparTema()" style="margin-top:6px;font-size:10px;color:var(--text3);background:none;border:none;cursor:pointer;padding:0">✕ Trocar assunto</button>
   </div>
 </div>
 
@@ -176,8 +200,6 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
   <div class="models-grid" id="mod-grid"></div>
 </div>
 
-
-
 <button class="gen-btn" id="gen-btn" onclick="gerar()">▶ GERAR CONTEÚDO</button>
 
 <div class="result-box" id="result-box">
@@ -190,6 +212,7 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
     <button class="act-btn" onclick="gerar()">↻ Gerar outro</button>
     <button class="act-btn" onclick="copiar()">⎘ Copiar texto</button>
     <button class="act-btn act-gpt" id="gpt-btn" onclick="abrirGPT()">✦ Criar no GPT</button>
+    <button class="act-btn act-gpt" id="img-btn" onclick="abrirImagem()" style="display:none">🖼️ Gerar imagens</button>
   </div>
 </div>
 
@@ -197,7 +220,7 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
 <div class="toast" id="toast"></div>
 
 <script>
-const S={format:'reels',objetivo:'engajamento',modelo:'tela_dividida'};
+const S={format:'reels',objetivo:'engajamento',modelo:'tela_dividida',categoria:'italia',modo:'busca',assuntoSelecionado:'',assuntoContexto:''};
 
 // SVG THUMBS por modelo
 const THUMBS={
@@ -736,6 +759,125 @@ function atualizarStatus(){
   else{st.textContent='⚠️ Configure a chave Anthropic para gerar conteúdo.';st.className='api-status';}
 }
 
+function setModo(modo){
+  S.modo=modo;
+  document.getElementById('tab-busca').classList.toggle('active',modo==='busca');
+  document.getElementById('tab-colar').classList.toggle('active',modo==='colar');
+  document.getElementById('modo-busca').style.display=modo==='busca'?'block':'none';
+  document.getElementById('modo-colar').style.display=modo==='colar'?'block':'none';
+  if(modo==='colar'){
+    document.getElementById('enrich-box').style.display='block';
+    document.getElementById('tema-selecionado').style.display='none';
+  }
+}
+
+function selectCat(el){
+  document.querySelectorAll('#cat-chips .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  S.categoria=el.dataset.val;
+  // limpa temas anteriores
+  const grid=document.getElementById('temas-grid');
+  grid.innerHTML='';
+  grid.classList.add('hidden');
+}
+
+function selecionarAssunto(assunto,contexto){
+  S.assuntoSelecionado=assunto;
+  S.assuntoContexto=contexto||'';
+  document.getElementById('tema-texto').textContent=assunto;
+  document.getElementById('tema-selecionado').style.display='block';
+  document.getElementById('temas-grid').classList.add('hidden');
+  document.getElementById('enrich-box').style.display='block';
+  toast('✓ Assunto selecionado!');
+}
+
+function limparTema(){
+  S.assuntoSelecionado='';S.assuntoContexto='';
+  document.getElementById('tema-selecionado').style.display='none';
+  document.getElementById('enrich-box').style.display='none';
+  document.getElementById('temas-grid').classList.add('hidden');
+  document.getElementById('enrich-input').value='';
+}
+
+async function buscarTemas(){
+  const ant=getKey('ant');
+  const btn=document.getElementById('tema-btn');
+  btn.textContent='Buscando...';btn.disabled=true;
+  const grid=document.getElementById('temas-grid');
+  grid.innerHTML='<div style="grid-column:1/-1;color:var(--text2);font-size:12px;padding:8px 0"><span class="spinner"></span>Buscando assuntos em alta...</div>';
+  grid.classList.remove('hidden');
+
+  const catLabels={
+    italia:'Itália — notícias, eventos, curiosidades das últimas 48 horas',
+    papa:'Papa e Vaticano — o que está acontecendo na Igreja Católica agora',
+    descendencia:'Descendência italiana no Brasil — histórias, raízes, cultura preservada',
+    estilo:'Estilo de vida italiano — longevidade, bem-viver, dolce vita, hábitos',
+    hack:'Hacks de aprendizado de idioma — descobertas sobre como o cérebro aprende',
+    catolicismo:'Catolicismo — fatos, eventos, personagens, história recente'
+  };
+  const cat=catLabels[S.categoria]||'Itália e cultura italiana';
+
+  try{
+    let temas=[];
+    // Tenta Perplexity via Netlify
+    try{
+      const r=await fetch('/.netlify/functions/temas?categoria='+encodeURIComponent(cat));
+      const d=await r.json();
+      if(d.temas&&d.temas.length>0){temas=d.temas;}
+    }catch(e){}
+
+    // Fallback: Claude com instrução aprofundada
+    if(!temas.length&&ant){
+      const r=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01'},
+        body:JSON.stringify({
+          model:'claude-haiku-4-5-20251001',
+          max_tokens:600,
+          messages:[{role:'user',content:`Sugira 4 assuntos ESPECÍFICOS e REAIS sobre: ${cat}
+
+Para cada assunto entregue:
+ASSUNTO: [título curto e impactante, max 12 palavras]
+CONTEXTO: [1-2 frases explicando o que está acontecendo, por que está em alta, dado concreto se houver]
+
+Foco: público brasileiro 50+ anos, descendência italiana, sonho de aprender italiano.
+Retorne apenas os 4 assuntos no formato acima, sem introdução.`}]
+        })
+      });
+      const d=await r.json();
+      const txt=d.content?.[0]?.text||'';
+      // Parse formato ASSUNTO/CONTEXTO
+      const blocos=txt.split(/ASSUNTO:/i).filter(b=>b.trim());
+      temas=blocos.map(b=>{
+        const partes=b.split(/CONTEXTO:/i);
+        return {
+          titulo:(partes[0]||'').trim().replace(/\n/g,' '),
+          contexto:(partes[1]||'').trim().replace(/\n/g,' ')
+        };
+      }).filter(t=>t.titulo.length>5).slice(0,4);
+    }
+
+    if(!temas.length)throw new Error('Nenhum assunto encontrado');
+    grid.innerHTML='';
+
+    temas.forEach(t=>{
+      const titulo=typeof t==='string'?t:t.titulo;
+      const contexto=typeof t==='string'?'':t.contexto;
+      const fonte=typeof t==='string'?'':t.fonte;
+      const d=document.createElement('div');
+      d.className='tema-item';
+      d.style.cssText='padding:10px 12px;cursor:pointer';
+      d.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px">${titulo}</div>${contexto?`<div style="font-size:11px;color:var(--text2);line-height:1.4;margin-bottom:3px">${contexto}</div>`:''}${fonte?`<div style="font-size:10px;color:var(--orange);opacity:0.7">📌 ${fonte}</div>`:''}`;
+      d.onclick=()=>selecionarAssunto(titulo,contexto+(fonte?'\n\nFonte: '+fonte:''));
+      grid.appendChild(d);
+    });
+    toast('✅ '+(temas.length)+' assuntos encontrados!');
+  }catch(e){
+    grid.innerHTML='<div style="grid-column:1/-1;color:#ef4444;font-size:12px;padding:4px">❌ Erro: '+e.message+'</div>';
+  }
+  btn.textContent='✦ Buscar assuntos em alta';btn.disabled=false;
+}
+
 function selectFormat(el){
   document.querySelectorAll('.fmt-card').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');S.format=el.dataset.val;
@@ -768,7 +910,7 @@ function renderMods(){
   grid.innerHTML='';
   list.forEach((m,i)=>{
     const photo=PHOTOS[m.id];
-const thumb=photo?`<img src="${photo}" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;">`:(THUMBS[m.id]||`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="82" fill="#1a1a1a"/></svg>`);
+    const thumb=photo?`<img src="${photo}" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;">`:(THUMBS[m.id]||`<svg viewBox="0 0 160 82" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="82" fill="#1a1a1a"/></svg>`);
     const card=document.createElement('div');
     card.className='model-card'+(i===0?' active':'');
     card.dataset.id=m.id;
@@ -787,129 +929,201 @@ const thumb=photo?`<img src="${photo}" style="width:100%;height:100%;object-fit:
   });
 }
 
-
-
-async function buscarTemas(){
-  const ant=getKey('ant');
-  const btn=document.getElementById('tema-btn');
-  const searchRow=document.getElementById('search-row');
-
-  // Primeira vez: mostra campo de pesquisa e para
-  if(searchRow.classList.contains('hidden')){
-    searchRow.classList.remove('hidden');
-    document.getElementById('search-query').focus();
-    btn.textContent='✦ Temas em alta';
-    return;
-  }
-
-  const query=document.getElementById('search-query').value.trim();
-  btn.textContent='Buscando...';btn.disabled=true;
-  const grid=document.getElementById('temas-grid');
-  grid.innerHTML='<div style="grid-column:1/-1;color:var(--text2);font-size:12px;padding:8px 0"><span class="spinner"></span>Buscando'+(query?' sobre "'+query+'"':' temas em alta')+'...</div>';
-  grid.classList.remove('hidden');
-
-  try{
-    let temas=[];
-    // Tenta via Netlify Function (Perplexity em tempo real)
-    try{
-      const url='/.netlify/functions/temas'+(query?'?query='+encodeURIComponent(query):'');
-      const r=await fetch(url);
-      const d=await r.json();
-      if(d.temas&&d.temas.length>0){temas=d.temas;}
-    }catch(e){}
-    // Fallback: Anthropic
-    if(!temas.length){
-      const topico=query||'aprendizado de italiano, cultura italiana, viagens para a Itália ou gastronomia italiana';
-      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,messages:[{role:'user',content:'Sugira 6 temas específicos sobre '+topico+' para criar conteúdo no Instagram. Cada tema em uma linha, máx 12 palavras, sem numeração.'}]})});
-      const d=await r.json();
-      const txt=d.content?.[0]?.text||'';
-      temas=txt.split('\n').filter(l=>l.trim()&&l.length>8).slice(0,6);
-    }
-    if(!temas.length)throw new Error('Nenhum tema retornado');
-    grid.innerHTML='';
-    temas.forEach(t=>{
-      const d=document.createElement('div');
-      d.className='tema-item';d.textContent=t;
-      d.onclick=()=>selecionarTema(t);
-      grid.appendChild(d);
-    });
-    toast('✅ '+temas.length+' temas encontrados!');
-  }catch(e){
-    grid.innerHTML='<div style="grid-column:1/-1;color:#ef4444;font-size:12px;padding:4px">❌ Erro: '+e.message+'</div>';
-  }
-  btn.textContent='✦ Temas em alta';btn.disabled=false;
-}
-
-async function selecionarTema(tema){
-  document.getElementById('topic-input').value=tema;
-  document.getElementById('topic-hint').textContent='✓ Tema selecionado — buscando contexto...';
-  document.getElementById('topic-hint').style.color='var(--orange)';
-
-  // Adiciona caixa de contexto
-  let ctxBox=document.getElementById('contexto-box');
-  if(!ctxBox){
-    ctxBox=document.createElement('div');
-    ctxBox.id='contexto-box';
-    ctxBox.className='contexto-box';
-    ctxBox.innerHTML='<div class="contexto-label">🔍 Contexto em tempo real</div><div id="contexto-texto"></div>';
-    document.querySelector('.topic-box').appendChild(ctxBox);
-  }
-  ctxBox.classList.add('show');
-  document.getElementById('contexto-texto').innerHTML='<span class="spinner"></span>Pesquisando informações sobre "'+tema+'"...';
-
-  try{
-    const r=await fetch('/.netlify/functions/temas?modo=aprofundar&query='+encodeURIComponent(tema));
-    const d=await r.json();
-    if(d.contexto){
-      document.getElementById('contexto-texto').textContent=d.contexto;
-      document.getElementById('topic-hint').textContent='✓ Tema selecionado com contexto real';
-      // Salva contexto pra usar na geração
-      window._contextoAtual=d.contexto;
-      toast('✅ Contexto carregado — pode gerar!');
-    }
-  }catch(e){
-    ctxBox.classList.remove('show');
-    window._contextoAtual='';
-    document.getElementById('topic-hint').textContent='✓ Tema selecionado';
-    toast('✓ Tema selecionado (contexto indisponível)');
-  }
-}
-
 function buildPrompt(){
-  const tema=document.getElementById('topic-input').value.trim();
-  const mod=S.modelo;const obj=S.objetivo;const tom=S.tom;
+  const mod=S.modelo;
+  const obj=S.objetivo;
   const modelData=MODS[S.format]?.find(m=>m.id===mod);
 
-  const contexto=window._contextoAtual||'';
+  // Obter assunto e contexto
+  let assunto='';
+  let contextoExtra='';
+  let conteudoColado='';
+
+  if(S.modo==='colar'){
+    conteudoColado=(document.getElementById('content-input')?.value||'').trim();
+    contextoExtra=(document.getElementById('enrich-input')?.value||'').trim();
+  } else {
+    assunto=S.assuntoSelecionado||(document.getElementById('tema-texto')?.textContent||'').trim();
+    contextoExtra=(document.getElementById('enrich-input')?.value||'').trim();
+    if(S.assuntoContexto) contextoExtra=S.assuntoContexto+(contextoExtra?'\n\nInformação adicional:\n'+contextoExtra:'');
+  }
+
+  // CTAs por objetivo
+  const ctaMap={
+    viral:'Me segue aqui. Todo dia eu mostro que aprender italiano é possível, em qualquer idade, do jeito certo.',
+    engajamento:'Se isso fez sentido pra você, comenta aqui embaixo com uma palavra em italiano. Qualquer palavra que você saiba!',
+    autoridade:'Me segue aqui. Todo dia eu mostro que aprender italiano é possível, em qualquer idade, do jeito certo.',
+    captacao:'Tem um link aqui na bio. Clica lá e vem aprender comigo do jeito certo.',
+    venda:'Clica no link da bio. Vai lá agora, não deixa pra depois.',
+    aula:'Me segue aqui pra aprender mais. Todo dia tem conteúdo novo.'
+  };
+  const cta=ctaMap[obj]||ctaMap.engajamento;
+
+  // === REELS ===
+  if(S.format==='reels'){
+
+    const modoEntrada=S.modo==='colar'?
+      `CONTEÚDO BASE (analise e extraia o assunto universal):
+${conteudoColado}
+${contextoExtra?'CONTEXTO EXTRA:\n'+contextoExtra:''}` :
+      `ASSUNTO UNIVERSAL: ${assunto}
+${contextoExtra?'CONTEXTO E INFORMAÇÕES REAIS:\n'+contextoExtra:''}`;
+
+    const formatoVisual=HANNA_PROMPTS[mod]?`MODELO VISUAL: ${modelData?.name||mod}
+${HANNA_PROMPTS[mod]}`:`MODELO VISUAL: ${modelData?.name||mod}`;
+
+    return `Você é um especialista em criação de conteúdo viral pedagógico para o perfil do Silvano Formentin.
+
+PERFIL DO SILVANO:
+Professor de italiano, descendência italiana de SC, foi pra Itália em 2007 sem falar o idioma, ficou sem dinheiro, pediu comida numa igreja em Verona, criou seu próprio método, voltou ao Brasil e hoje tem a maior escola de italiano da América Latina.
+
+AVATAR:
+Mulher 50+ anos, descendência italiana. A avó ou o pai falavam italiano em casa mas nunca ensinaram. Já tentou aprender antes pelo método tradicional (gramática) e desistiu. Acha que já passou da idade. Quer se reconectar com as raízes. Sonha em ir à Itália.
+
+INIMIGO EM COMUM: método tradicional, gramática logo de cara.
+
+TRANSFORMAÇÃO: não é só aprender italiano — é descobrir que é capaz. Se reconectar com as raízes. Realizar um sonho antigo.
+
+${modoEntrada}
+
+OBJETIVO DO CONTEÚDO: ${obj}
+
+${formatoVisual}
+
+ESTRUTURA OBRIGATÓRIA — 8 CAMADAS DO FUNIL VIRAL PEDAGÓGICO:
+
+PASSO 1 — GANCHO VISUAL:
+Instrução de cena para os primeiros 2 segundos. O que aparece na tela. Formato tela dividida: imagem forte em cima + Silvano falando embaixo.
+Entregue também:
+PROMPT DE IMAGEM: [prompt em inglês para gerar a imagem do gancho via IA — específico, visual, impactante]
+
+PASSO 2 — DUAS OPÇÕES DE GANCHO ESCRITO:
+Opção A: [frase que abre loop de curiosidade]
+Opção B: [frase que abre loop de contradição ou emoção]
+Nenhuma entrega a resposta. As duas sustentam o mesmo roteiro.
+
+PASSO 3 — GANCHO FALADO + CURIOSIDADE:
+Primeiras frases faladas. Ritmo de contador de histórias. Abre curiosidade sem entregar o ensino. Tom de sala de casa.
+[RE-HOOK aos 30-40s: insira frase de retenção para segurar quem está saindo]
+
+PASSO 4 — CONTEXTO (Ponto A):
+Conta a história do assunto universal com detalhes reais. Modo jornalista/contador de histórias. Frase longa de contexto + frase curta de impacto. Não resolve ainda.
+[RE-HOOK ao 1min: insira frase de retenção — "e a parte mais importante ainda não apareceu"]
+
+PASSO 5 — CORRELAÇÃO (Ponto B):
+A virada. Conexão explícita entre o assunto e o que acontece com quem tenta aprender italiano. Dita claramente, não subentendida.
+
+PASSO 6 — ENSINO + EMBASAMENTO:
+O princípio pedagógico. Máximo 2 pontos. Com caso real de aluno, número concreto ou resultado verificável. Nunca abstrato. Pode incluir "Repete comigo" ou frase em italiano quando encaixar.
+[RE-HOOK se vídeo >2min: insira frase de retenção antes do fechamento]
+
+PASSO 7 — MORAL DA HISTÓRIA:
+Frase memorável que fecha o ensino. Devolve confiança ao avatar. Inversão de crença: "o problema nunca foi você, foi o método."
+
+PASSO 8 — AUTORIDADE + CTA:
+Uma frase de autoridade baseada em experiência real. Depois: ${cta}
+
+REGRAS DE TOM (aplicar em todo o roteiro):
+- Tom de sala de casa: próximo, humano, com leveza e firmeza
+- Exemplos do cotidiano: nona, família, viagem, restaurante, missa, música italiana
+- NUNCA: gramática, formalismo, linguagem técnica, "jornada", "propósito", "vibração"
+- NUNCA travessão (—) — usar ponto ou vírgula
+- "do jeito certo" como âncora de método
+- "qualquer idade" quando falar de possibilidade
+- Frases curtas após frases longas para ritmo
+
+COMPRIMENTO: 350-450 palavras no roteiro falado (camadas 3 a 8)
+
+ENTREGUE o roteiro completo agora, começando pela instrução de gancho visual e prompt de imagem, depois as duas opções de gancho escrito, depois o roteiro falado corrido sem marcadores de seção.`;
+  }
+
+  // === CARROSSEL ===
+  if(S.format==='carrossel'){
+
+    const modoEntrada=S.modo==='colar'?
+      `CONTEÚDO BASE (analise e extraia o assunto universal):
+${conteudoColado}
+${contextoExtra?'CONTEXTO EXTRA:\n'+contextoExtra:''}` :
+      `ASSUNTO UNIVERSAL: ${assunto}
+${contextoExtra?'CONTEXTO E INFORMAÇÕES REAIS:\n'+contextoExtra:''}`;
+
+    return `Você é um especialista em criação de carrossel viral pedagógico para o perfil do Silvano Formentin.
+
+PERFIL DO SILVANO:
+Professor de italiano, descendência italiana de SC, foi pra Itália em 2007 sem falar o idioma, ficou sem dinheiro, pediu comida numa igreja em Verona, criou seu próprio método, voltou ao Brasil e hoje tem a maior escola de italiano da América Latina.
+
+AVATAR:
+Mulher 50+ anos, descendência italiana. A avó ou o pai falavam italiano em casa mas nunca ensinaram. Já tentou aprender antes pelo método tradicional (gramática) e desistiu. Acha que já passou da idade. Quer se reconectar com as raízes.
+
+${modoEntrada}
+
+OBJETIVO: ${obj}
+MODELO VISUAL: ${modelData?.name||mod}
+
+ESTRUTURA OBRIGATÓRIA — 7 CAMADAS SLIDE A SLIDE:
+
+SLIDE 1 — GANCHO ESCRITO + GANCHO VISUAL:
+Texto: [headline que para o scroll — duas opções abaixo]
+Opção A: [frase que abre loop de curiosidade]
+Opção B: [frase que abre loop de emoção ou contradição]
+Direção visual: [o que deve aparecer na imagem/fundo]
+Prompt de imagem: [prompt em inglês para gerar via IA]
+Elemento de retenção: [o que faz a pessoa passar para o slide 2]
+
+SLIDE 2 — 2° GANCHO ESCRITO + 2° GANCHO VISUAL:
+Texto: [aprofunda o loop, não entrega o ensino ainda]
+Direção visual: [detalhe ou nova imagem que aprofunda]
+Prompt de imagem: [prompt em inglês]
+Elemento de retenção: [o que faz passar para o slide 3]
+
+SLIDE 3 — CONTEXTO (Ponto A):
+Texto do slide: [narrativa curta com detalhe real — máx 4 linhas]
+Direção visual: [imagem que ilustra o contexto]
+Prompt de imagem: [prompt em inglês]
+
+SLIDE 4 — CORRELAÇÃO (Ponto B):
+Texto do slide: [a virada — conexão explícita com aprender italiano]
+Direção visual: [fundo limpo, texto em destaque]
+
+SLIDE 5 — ENSINO + EMBASAMENTO:
+Texto do slide: [princípio simples com base concreta — caso real, número, resultado]
+Pode incluir frase em italiano com tradução entre parênteses.
+
+SLIDE 6 — MORAL DA HISTÓRIA:
+Texto do slide: [frase curta e poderosa — soco final — devolve confiança ao avatar]
+Direção visual: [fundo de alto contraste, frase em destaque]
+Prompt de imagem: [prompt em inglês para slide de impacto]
+
+SLIDE 7 — AUTORIDADE + CTA:
+Texto: [frase de autoridade baseada em experiência real + CTA]
+CTA: ${cta}
+Direção visual: [foto do Silvano ou fundo limpo com CTA em destaque]
+
+PROMPTS DE IMAGEM CONSOLIDADOS:
+Ao final, entregue um bloco único:
+"PROMPTS PARA GERAR IMAGENS (copie e cole no GPT de imagens):"
+[todos os prompts dos slides numerados]
+
+REGRAS DE TOM:
+- Tom de sala de casa: próximo, humano, com leveza e firmeza
+- Texto por slide: máximo 3-4 linhas visíveis, legível rapidamente
+- NUNCA: gramática, formalismo, linguagem técnica
+- NUNCA travessão (—)
+- Cada slide precisa de motivo para passar para o próximo`;
+  }
+
+  // === STORIES e POST — mantém prompts originais ===
   const BASE=`Você é especialista em criação de conteúdo viral para o perfil do Silvano Formentin — professor brasileiro de italiano, apaixonado pela cultura italiana, com tom próximo, autêntico e envolvente.
 
 PÚBLICO: Brasileiros que amam a Itália, querem aprender italiano ou sonham em viajar para lá.
 OBJETIVO DO CONTEÚDO: ${obj}
-TOM DE VOZ FIXO — SILVANO FORMENTIN:
-- Professor carismático, próximo e acolhedor — fala como quem conversa na sala de estar
-- Bem-humorado com leveza: brincadeiras leves, comparações cotidianas, humor afetuoso
-- Frases curtas, fáceis, jeito de fala espontânea
-- Sempre traz o público para dentro ("repete comigo", "olha só", "você já percebeu?")
-- Usa repetições, exemplos e analogias com a vida real
-- Referências: comida, família, viagens, fé, cultura italiana, cotidiano
-- Frases-gatilho: "Olha só que fácil", "Não tem mistério", "Italiano é pra todo mundo", "Errar faz parte", "Repete comigo", "Andiamo!"
-- Abre com "Ciao ragazzi!" quando natural, usa "Bravissimi!" pra elogio
-- NUNCA usa linguagem técnica, formalismo exagerado, termos em inglês ou frases elitistas
-- NUNCA começa pelo lado da gramática — sempre pela prática, pelo ouvido, pelo cotidiano
-- Motiva com afeto mas reforça que constância é indispensável
-TEMA: ${tema||'escolha o mais relevante para o nicho italiano'}
-MODELO ESCOLHIDO: ${modelData?.name||mod}${contexto?'\n\nCONTEXTO REAL PESQUISADO (use esses dados no roteiro):\n'+contexto:''}`;
+TEMA: ${assunto||conteudoColado||'escolha o mais relevante para o nicho italiano'}
+MODELO ESCOLHIDO: ${modelData?.name||mod}`;
 
-  // Modelos com Método Hanna
   if(HANNA_PROMPTS[mod]){
-    return `${BASE}
-
-${HANNA_PROMPTS[mod]}
-
-Adapte tudo para o nicho italiano do Silvano. Sempre ensine algo real sobre italiano (palavra, pronúncia, cultura, gastronomia). A moral e o CTA devem conectar com o curso/mentoria de italiano do Silvano.`;
+    return `${BASE}\n\n${HANNA_PROMPTS[mod]}\n\nAdapte tudo para o nicho italiano do Silvano. Sempre ensine algo real sobre italiano (palavra, pronúncia, cultura, gastronomia). A moral e o CTA devem conectar com o curso/mentoria de italiano do Silvano.`;
   }
 
-  // Modelos Conteúdos Fraga
   const fragaInst={
     caixinha:'ROTEIRO para Reels — formato caixinha de perguntas. Comece com uma pergunta real ou simulada da audiência. Responda de forma envolvente ensinando algo sobre italiano. Hook forte nos 3 primeiros segundos. CTA no final pedindo mais perguntas. Entregue: GANCHO (3s) | PERGUNTA DA CAIXINHA | DESENVOLVIMENTO | ENSINAMENTO | CTA',
     comparacao_reels:'ROTEIRO para Reels — formato comparação (certo vs. errado). Mostre o jeito errado primeiro (cria tensão), depois revela o jeito certo em italiano. Alto contraste. Entregue: GANCHO | ERRADO (com tensão) | CERTO (revelação) | APLICAÇÃO | CTA',
@@ -932,25 +1146,22 @@ Adapte tudo para o nicho italiano do Silvano. Sempre ensine algo real sobre ital
     lista:'POST lista. Hook inicial + X coisas sobre italiano + CTA + hashtags. Entregue completo.'
   };
 
-  const instrucao=fragaInst[mod]||fragaInst[mod+'_reels']||'Crie um conteúdo relevante e envolvente sobre italiano para o formato escolhido.';
+  const instrucao=fragaInst[mod]||'Crie um conteúdo relevante e envolvente sobre italiano para o formato escolhido.';
 
-  return `${BASE}
-
-${instrucao}
-
-REGRAS DE OURO:
-- Sempre ensine algo real sobre italiano (palavra, frase, pronúncia, cultura)
-- Use abordagem baseada em PREMISSAS, não promessas vazias
-- CTA com urgência no final
-- Quebre expectativas — surpresa gera retenção
-- Se usar número, seja específico`;
+  return `${BASE}\n\n${instrucao}\n\nREGRAS DE OURO:\n- Sempre ensine algo real sobre italiano (palavra, frase, pronúncia, cultura)\n- Use abordagem baseada em PREMISSAS, não promessas vazias\n- CTA com urgência no final\n- Quebre expectativas — surpresa gera retenção\n- Se usar número, seja específico`;
 }
 
 async function gerar(){
   const ant=getKey('ant');
   if(!ant){toast('⚠️ Configure a chave Anthropic primeiro');return;}
-  const tema=document.getElementById('topic-input').value.trim();
-  if(!tema){toast('⚠️ Escreva o tema no campo acima');return;}
+
+  // Validar entrada
+  if(S.modo==='colar'){
+    const conteudo=(document.getElementById('content-input')?.value||'').trim();
+    if(!conteudo){toast('⚠️ Cole o conteúdo no campo acima');return;}
+  } else {
+    if(!S.assuntoSelecionado){toast('⚠️ Selecione um assunto primeiro');return;}
+  }
 
   const btn=document.getElementById('gen-btn');
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Gerando conteúdo...';
@@ -959,8 +1170,8 @@ async function gerar(){
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:buildPrompt()}]})
+      headers:{'Content-Type':'application/json','x-api-key':ant,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,messages:[{role:'user',content:buildPrompt()}]})
     });
     const d=await r.json();
     if(d.error)throw new Error(d.error.message);
@@ -969,6 +1180,15 @@ async function gerar(){
     document.getElementById('result-title').textContent=labels[S.format];
     document.getElementById('result-content').textContent=text;
     box.style.display='block';
+
+    // Mostrar botão de imagem para reels e carrossel
+    const imgBtn=document.getElementById('img-btn');
+    if(S.format==='reels'||S.format==='carrossel'){
+      imgBtn.style.display='';
+    } else {
+      imgBtn.style.display='none';
+    }
+
     box.scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){
     toast('❌ Erro: '+e.message,4000);
@@ -981,209 +1201,51 @@ function copiar(){
   navigator.clipboard.writeText(text).then(()=>{const b=event.target;b.textContent='✓ Copiado!';setTimeout(()=>b.textContent='⎘ Copiar texto',2000);});
 }
 
-const VISUAL_MODELS={
-  // CARROSSEL
-  erros:`PADRÃO VISUAL — MODELO: O QUE NÃO FAZER
-- Fundo escuro com foto cinematográfica de situação italiana (bar, rua, restaurante, mercado)
-- Logo "SF" ou "Silvano Formentin" no canto superior esquerdo
-- CAPA (slide 1): headline explosiva em caixa alta, estilo gráfico impactante, cores fortes (preto + vermelho), elemento de alerta visual (ícone ✗ grande, símbolo de proibido)
-- Slides de ERRO: fundo mais escuro, grande ícone ✗ vermelho no canto superior, headline do erro em caixa alta, texto explicativo em branco
-- Slide de SOLUÇÃO CERTA: fundo levemente diferente, grande ícone ✓ verde, headline em caixa alta, texto da solução
-- Divisor com as 3 cores da bandeira italiana (verde, branco, vermelho) abaixo de cada headline
-- Número do slide no rodapé direito (1/N, 2/N...)
-- Último slide: CTA em card destacado, fundo com foto italiana`,
-
-  comparacao:`PADRÃO VISUAL — MODELO: COMPARAÇÃO
-- Fundo escuro com foto cinematográfica italiana ao fundo (desfocada)
-- Logo "SF" no canto superior esquerdo
-- CAPA (slide 1): headline de contraste em caixa alta, tipografia grande, foto impactante
-- Slides de comparação: divididos VISIVELMENTE em dois lados — esquerda (lado A, tom mais frio/neutro) e direita (lado B, tom mais quente/vibrante), com divisória vertical clara no centro
-- Cada lado com headline própria em caixa alta + texto explicativo
-- Ícones ou símbolos que reforcem a diferença (✗ vs ✓, ← vs →, antes vs depois)
-- Divisor com as 3 cores da bandeira italiana abaixo das headlines
-- Número do slide no rodapé direito (1/N, 2/N...)
-- Último slide: CTA centralizado`,
-
-  quiz:`PADRÃO VISUAL — MODELO: QUIZ
-- Fundo escuro com foto italiana desfocada ao fundo
-- Logo "SF" no canto superior esquerdo
-- CAPA (slide 1): pergunta do quiz em destaque, elemento de interrogação grande, tom de desafio
-- Slides de alternativas: CAIXAS de alternativas estilo Stories do Instagram — cada alternativa em uma caixa arredondada, letras A, B, C em destaque colorido (laranja, azul, verde)
-- As caixas devem ser grandes, fáceis de ler, com espaço entre elas
-- Slide de RESPOSTA: destaque visual na alternativa correta (borda laranja brilhante, ícone ✓), as erradas mais apagadas
-- Explicação da resposta em texto menor abaixo
-- Divisor com as 3 cores da bandeira italiana
-- Número do slide no rodapé direito (1/N, 2/N...)`,
-
-  historia:`PADRÃO VISUAL — MODELO: HISTÓRIA COM CONTEXTO
-- Fundo com foto cinematográfica italiana EMOCIONAL (família italiana, velhinha, café, aldeia) — foto ocupa o slide inteiro
-- Logo "SF" no canto superior esquerdo
-- CAPA (slide 1): foto mais impactante + headline emocional em caixa alta, fonte serif grande
-- Slides de desenvolvimento: foto italiana de contexto + texto narrativo em card semi-transparente na parte inferior do slide
-- Tom quente, nostálgico, cinematográfico — cores âmbar, dourado, sépia
-- Headline de cada slide em caixa alta, corpo do texto menor
-- Divisor com as 3 cores da bandeira italiana
-- Número do slide no rodapé direito (1/N, 2/N...)
-- Último slide: foto emocional forte + CTA`,
-
-  regras:`PADRÃO VISUAL — MODELO: REGRAS CULTURAIS
-- Fundo escuro elegante com textura ou foto italiana desfocada
-- Logo "SF" no canto superior esquerdo
-- CAPA (slide 1): headline impactante "A REGRA QUE NINGUÉM TE CONTOU" ou similar, ícone de livro/scroll/regra
-- Cada regra em slide próprio: número da regra em destaque grande (01, 02, 03...) em laranja, headline da regra em caixa alta, explicação em texto menor
-- Visual de autoridade e clareza — sem poluição visual, muito branco, muito espaço
-- Ícones italianos sutis (bandeira, mapa, símbolo cultural) como elemento decorativo
-- Divisor com as 3 cores da bandeira italiana
-- Número do slide no rodapé direito (1/N, 2/N...)
-- Último slide: CTA com tom de "agora você sabe"`,
-
-  curiosidade:`PADRÃO VISUAL — MODELO: CURIOSIDADE/SEGREDO
-- Fundo escuro misterioso com foto italiana desfocada
-- Logo "SF" no canto superior esquerdo
-- CAPA (slide 1): headline de revelação em caixa alta ("O SEGREDO QUE..."), elemento de surpresa (ícone de lâmpada, interrogação, olho)
-- Slides de desenvolvimento: foto italiana relevante + texto em card — vai revelando a curiosidade em camadas
-- Tipografia grande, ousada, tom de revelação progressiva
-- Cores: preto, laranja, dourado — clima de descoberta
-- Divisor com as 3 cores da bandeira italiana
-- Número do slide no rodapé direito (1/N, 2/N...)
-- Último slide: "Agora você sabe" + CTA`,
-
-  // STORIES
-  fundo_preto:`PADRÃO VISUAL — STORIES FUNDO PRETO
-- Fundo 100% preto
-- Uma frase por story, texto branco grande centralizado
-- Tipografia clean, bold, sem elementos extras
-- Último story: CTA com fundo laranja ou elemento colorido`,
-
-  pov:`PADRÃO VISUAL — STORIES POV
-- Foto ou vídeo de contexto italiano ao fundo (rua, café, mercado)
-- Texto "POV:" em destaque no topo
-- Cena descrita em texto menor abaixo
-- Tom imersivo, como se você estivesse lá`,
-
-  video_story:`PADRÃO VISUAL — STORIES VÍDEO
-- Layout vertical stories
-- Texto da fala como legenda na parte inferior
-- Fundo desfocado ou sólido escuro
-- CTA no último story com botão ou seta`,
-
-  caixinha_s:`PADRÃO VISUAL — STORY CAIXINHA
-- Fundo foto italiana ou cor sólida escura
-- Caixinha de pergunta do Instagram centralizada
-- Texto da pergunta acima da caixinha
-- Tom de convite`,
-
-  enquete:`PADRÃO VISUAL — STORY ENQUETE
-- Fundo foto italiana ou cor sólida
-- Pergunta no topo em texto grande
-- Dois botões de enquete do Instagram (opção A e opção B)
-- Visual limpo`,
-
-  misto:`PADRÃO VISUAL — SEQUÊNCIA STORIES MISTA
-- Stories variados: fundo preto + foto + enquete
-- Cada story com seu padrão específico conforme o tipo
-- Sequência coesa com mesma paleta (preto, laranja, branco)`,
-
-  // POST
-  citacao:`PADRÃO VISUAL — POST CITAÇÃO
-- Fundo escuro com foto italiana desfocada ou textura
-- Aspas grandes em destaque (laranja ou dourado)
-- Frase principal em tipografia grande, caixa alta ou título
-- Autoria ou contexto em texto menor abaixo
-- Logo "SF" discreto
-- Visual elegante e editorial`,
-
-  pergunta:`PADRÃO VISUAL — POST PERGUNTA
-- Fundo escuro com foto italiana
-- Ponto de interrogação grande como elemento visual
-- Pergunta em tipografia grande, clara, centralizada
-- Subtexto que incentiva o comentário
-- Logo "SF" discreto`,
-
-  micro_historia:`PADRÃO VISUAL — POST MICRO-HISTÓRIA
-- Foto italiana cinematográfica ocupando o post
-- Texto em card semi-transparente na parte inferior
-- Headline em caixa alta, corpo menor
-- Divisor com cores da bandeira italiana
-- Logo "SF" discreto`,
-
-  lista:`PADRÃO VISUAL — POST LISTA
-- Fundo escuro elegante
-- Título da lista em caixa alta no topo
-- Cada item numerado com ícone ou bullet laranja
-- Tipografia clara e bem espaçada
-- Logo "SF" discreto`
-};
-
-function contarSlides(text){
-  // Conta slides pelo padrão SLIDE X ou por linhas que começam com número
-  const matches=text.match(/SLIDE\s+\d+/gi)||text.match(/^##?\s*\d+/gm)||[];
-  if(matches.length>1) return Math.min(matches.length,8);
-  // Fallback: estima pelo tamanho do conteúdo
-  const linhas=text.split('\n').filter(l=>l.trim()).length;
-  return Math.min(Math.max(Math.round(linhas/4),4),8);
-}
-
 function abrirGPT(){
   const text=document.getElementById('result-content').textContent;
   if(!text){toast('⚠️ Gere o conteúdo primeiro');return;}
-
-  const fmt=S.format;
-  const mod=S.modelo;
-  const url=GPT_URLS[fmt];
-  let finalText=text;
-
-  if(fmt==='carrossel'){
-    const visualModel=VISUAL_MODELS[mod]||'';
-    const nSlides=contarSlides(text);
-    const promptGPT=`Crie um carrossel de Instagram com ${nSlides} slides. Quero que você gere todos os slides separados, como imagens individuais, uma por slide, e não em uma grade única. Mantenha a mesma identidade visual em todos os slides baseada no padrão visual abaixo. A capa deve ser mais chamativa, com imagem forte. Os demais slides podem usar elementos gráficos mais simples. Use exatamente os textos abaixo, sem mudar a copy. Entregue tudo pronto para postar. Gere todos os slides separadamente, todo de uma vez, 1 imagem por slide, e não em uma prancha/grade única. Use referência de imagem com elementos para facilitar a didática e HEADLINE com alguns destaques em caixa ALTA. O texto do corpo não pode ser muito pequeno (use todo slide se precisar), para a leitura ser fácil e pode ter quebras de linhas e destaques.
-
-${visualModel}
-
-CONTEÚDO:
-${text}`;
-    finalText=promptGPT;
-
-  } else if(fmt==='stories'){
-    const visualModel=VISUAL_MODELS[mod]||'';
-    const promptGPT=`Crie uma sequência de stories para Instagram. Gere cada story como uma imagem individual separada, não em grade. Mantenha a mesma identidade visual em todos os stories baseada no padrão visual abaixo. Use exatamente os textos abaixo, sem mudar a copy. Entregue tudo pronto para postar, 1 imagem por story. Use HEADLINE em caixa ALTA onde indicado. O texto deve ser grande e legível.
-
-${visualModel}
-
-CONTEÚDO:
-${text}`;
-    finalText=promptGPT;
-
-  } else if(fmt==='post'){
-    const visualModel=VISUAL_MODELS[mod]||'';
-    const promptGPT=`Crie um post para Instagram. Use exatamente o texto abaixo, sem mudar a copy. Siga o padrão visual descrito. Entregue pronto para postar. Use HEADLINE em caixa ALTA onde indicado.
-
-${visualModel}
-
-CONTEÚDO:
-${text}`;
-    finalText=promptGPT;
-  }
-  // Reels: copia só o roteiro
-
-  navigator.clipboard.writeText(finalText).then(()=>{
+  const url=GPT_URLS[S.format];
+  navigator.clipboard.writeText(text).then(()=>{
     const b=document.getElementById('gpt-btn');
     b.textContent='✓ Copiado! Abrindo...';
     setTimeout(()=>{window.open(url,'_blank');b.textContent='✦ Criar no GPT';},700);
   });
 }
 
+function abrirImagem(){
+  const text=document.getElementById('result-content').textContent;
+  if(!text){toast('⚠️ Gere o conteúdo primeiro');return;}
+  // Extrai os prompts de imagem do texto gerado
+  const linhas=text.split('\n');
+  const promptLines=linhas.filter(l=>
+    l.toLowerCase().includes('prompt de imagem')||
+    l.toLowerCase().includes('prompt para imagem')||
+    l.toLowerCase().includes('prompts para gerar imagens')
+  );
+  let promptsTexto='';
+  if(promptLines.length>0){
+    // Pega tudo a partir do primeiro prompt encontrado
+    const idx=linhas.findIndex(l=>
+      l.toLowerCase().includes('prompt de imagem')||
+      l.toLowerCase().includes('prompts para gerar imagens')
+    );
+    promptsTexto=linhas.slice(idx).join('\n');
+  } else {
+    promptsTexto=text;
+  }
+  navigator.clipboard.writeText(promptsTexto).then(()=>{
+    const b=document.getElementById('img-btn');
+    b.textContent='✓ Prompts copiados! Abrindo...';
+    const url=S.format==='carrossel'?
+      GPT_URLS.carrossel:
+      GPT_URLS.reels;
+    setTimeout(()=>{window.open(url,'_blank');b.textContent='🖼️ Gerar imagens';},700);
+  });
+}
+
 window.addEventListener('load',()=>{
   if(getKey('ant'))document.getElementById('key-ant').placeholder='sk-ant-... (salva ✓)';
   atualizarStatus();
-  document.getElementById('topic-input').addEventListener('input',function(){
-    const h=document.getElementById('topic-hint');
-    h.textContent=this.value.trim()?'✓ Tema definido':'Escreva o tema ou busque sugestões em alta';
-    h.style.color=this.value.trim()?'var(--orange)':'';
-    window._contextoAtual='';
-    const cb=document.getElementById('contexto-box');
-    if(cb)cb.classList.remove('show');
-  });
   renderObjs();renderMods();
 });
 </script>

@@ -161,6 +161,7 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
 <div class="main-tabs">
   <div class="main-tab active" onclick="mudarAba('gerador')">🎬 Gerador</div>
   <div class="main-tab" onclick="mudarAba('chat')">💬 Conversar</div>
+  <div class="main-tab" onclick="mudarAba('criar')">📝 Criar Roteiro</div>
 </div>
 
 <!-- PAINEL GERADOR -->
@@ -253,18 +254,62 @@ body{background:var(--black);color:var(--text);font-family:'Barlow',sans-serif;m
 <div class="tab-panel" id="tab-chat">
   <div class="chat-wrap">
     <div class="chat-msgs" id="chat-msgs">
-      <div class="msg bot">Ciao! 👋 Sou seu assistente de conteúdo. Posso te ajudar a pensar em ideias, analisar assuntos, ou gerar roteiros de Reels e Carrossel no formato pedagógico viral do Silvano Formentin.
-
-Pode me mandar uma ideia, uma notícia que viu, um vídeo que curtiu — ou gravar um áudio direto aqui. Quando quiser gerar o roteiro, é só falar!</div>
+      <div class="msg bot">Ciao! 👋 Me conta o que você quer falar. Pode ser uma notícia que viu, algo sobre a Itália, o Papa, descendência italiana — qualquer coisa. A gente decide o tema e o ângulo juntos, depois você clica em Criar Roteiro e eu gero tudo certinho.</div>
     </div>
-    <div class="chat-hint">Diga "gera o roteiro" ou "cria o carrossel" para gerar o conteúdo</div>
+    <div style="padding:8px 1rem;border-top:.5px solid var(--border);background:var(--dark3)">
+      <button onclick="irCriarRoteiro()" style="width:100%;padding:9px;background:linear-gradient(135deg,var(--orange),var(--orange2));border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:.04em">📝 Criar Roteiro com esse tema</button>
+    </div>
     <div class="chat-input-area">
       <button class="btn-mic" id="btn-mic" onclick="toggleMic()" title="Gravar áudio">🎙️</button>
-      <textarea class="chat-input" id="chat-input" placeholder="Digite uma ideia, assunto ou pergunta..." rows="1" onkeydown="chatKeydown(event)" oninput="autoResize(this)"></textarea>
+      <textarea class="chat-input" id="chat-input" placeholder="Conta o tema, a ideia, o que você viu..." rows="1" onkeydown="chatKeydown(event)" oninput="autoResize(this)"></textarea>
       <button class="btn-send" id="btn-send" onclick="enviarChat()">➤</button>
     </div>
   </div>
 </div><!-- fim tab-chat -->
+
+<!-- PAINEL CRIAR ROTEIRO -->
+<div class="tab-panel" id="tab-criar">
+  <div style="background:var(--dark2);border:.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem">
+    <div style="font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">📋 Contexto da conversa</div>
+    <div id="criar-contexto" style="font-size:13px;color:var(--text2);line-height:1.6;min-height:60px">Nenhuma conversa ainda. Vai na aba Conversar primeiro!</div>
+  </div>
+
+  <div style="background:var(--dark2);border:.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem">
+    <div style="font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">🎯 Ângulos sugeridos</div>
+    <div id="criar-angulos" style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:13px;color:var(--text3)">Clique em "Sugerir ângulos" para ver as opções.</div>
+    </div>
+    <button onclick="sugerirAngulos()" id="btn-angulos" style="margin-top:12px;width:100%;padding:9px;background:var(--surf2);border:.5px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-weight:700;cursor:pointer">✨ Sugerir ângulos</button>
+  </div>
+
+  <div style="background:var(--dark2);border:.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem">
+    <div style="font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">📐 Formato e CTA</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <button onclick="setCriarFormat('reels')" id="cf-reels" class="chip active" style="flex:1;text-align:center">🎬 Reels</button>
+      <button onclick="setCriarFormat('carrossel')" id="cf-carr" class="chip" style="flex:1;text-align:center">🎠 Carrossel</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap" id="criar-cta-chips">
+      <div class="chip active" onclick="setCriarCTA(this,'seguir')">👤 Seguir</div>
+      <div class="chip" onclick="setCriarCTA(this,'comentario')">💬 Comentário</div>
+      <div class="chip" onclick="setCriarCTA(this,'link')">🔗 Link na bio</div>
+      <div class="chip" onclick="setCriarCTA(this,'fluxo')">⚡ Fluxo</div>
+    </div>
+  </div>
+
+  <button onclick="gerarDoChat()" style="width:100%;padding:1rem;background:linear-gradient(135deg,var(--orange),var(--orange2));border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:900;letter-spacing:.06em;cursor:pointer;text-transform:uppercase">▶ GERAR ROTEIRO</button>
+
+  <div class="result-box" id="criar-result-box" style="margin-top:1rem">
+    <div class="result-header">
+      <span class="result-title" id="criar-result-title">Roteiro</span>
+      <span class="result-badge">✓ PRONTO PARA VALIDAR</span>
+    </div>
+    <div class="result-content" id="criar-result-content"></div>
+    <div class="result-actions">
+      <button class="act-btn" onclick="copiarCriar()">⎘ Copiar texto</button>
+      <button class="act-btn act-gpt" id="criar-img-btn" onclick="abrirImagemCriar()" style="display:none">🖼️ Gerar imagens</button>
+    </div>
+  </div>
+</div><!-- fim tab-criar -->
 
 </div>
 <div class="toast" id="toast"></div>
@@ -1305,10 +1350,15 @@ window.addEventListener('load',()=>{
   renderObjs();renderMods();
 });
 
-// ── ABAS PRINCIPAIS ──
+
+// ── CRIAR ROTEIRO ──
+let criarFormat='reels';
+let criarCTA='seguir';
+let anguloEscolhido='';
+
 function mudarAba(aba){
+  const abas=['gerador','chat','criar'];
   document.querySelectorAll('.main-tab').forEach((t,i)=>{
-    const abas=['gerador','chat'];
     t.classList.toggle('active', abas[i]===aba);
   });
   document.querySelectorAll('.tab-panel').forEach(p=>{
@@ -1316,67 +1366,208 @@ function mudarAba(aba){
   });
 }
 
+function setCriarFormat(f){
+  criarFormat=f;
+  document.getElementById('cf-reels').classList.toggle('active',f==='reels');
+  document.getElementById('cf-carr').classList.toggle('active',f==='carrossel');
+}
+
+function setCriarCTA(el,cta){
+  criarCTA=cta;
+  document.querySelectorAll('#criar-cta-chips .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function irCriarRoteiro(){
+  // Pega resumo da conversa e vai pra aba criar
+  const msgs=CHAT_HISTORY.filter(m=>m.role==='user').map(m=>m.content).join(' | ');
+  if(!msgs){toast('⚠️ Conversa antes de criar o roteiro!');return;}
+  document.getElementById('criar-contexto').textContent=msgs.slice(0,300)+(msgs.length>300?'...':'');
+  anguloEscolhido='';
+  document.getElementById('criar-angulos').innerHTML='<div style="font-size:13px;color:var(--text3)">Clique em "Sugerir ângulos" para ver as opções.</div>';
+  mudarAba('criar');
+}
+
+async function sugerirAngulos(){
+  const contexto=document.getElementById('criar-contexto').textContent;
+  if(!contexto||contexto.includes('Nenhuma conversa')){toast('⚠️ Vai na aba Conversar primeiro!');return;}
+  const btn=document.getElementById('btn-angulos');
+  btn.disabled=true;btn.textContent='⏳ Gerando ângulos...';
+  try{
+    const r=await fetch('/.netlify/functions/gerar',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        prompt:`Com base nesse contexto de conversa sobre conteúdo para o Silvano Formentin (professor de italiano, avatar: mulher 50+, descendência italiana):
+
+CONTEXTO: ${contexto}
+
+Sugira 3 ângulos diferentes para um vídeo/carrossel no formato pedagógico viral. Cada ângulo deve ter:
+- Um gancho inicial impactante (o que aparece na tela)
+- A história que será contada (assunto universal)
+- A virada para o italiano (como conecta ao nicho)
+
+Formato de resposta:
+ÂNGULO 1: [nome curto]
+GANCHO: [frase de gancho]
+HISTÓRIA: [o que você vai contar]
+VIRADA: [como conecta ao italiano]
+---
+ÂNGULO 2: ...
+---
+ÂNGULO 3: ...`,
+        max_tokens:800
+      })
+    });
+    const d=await r.json();
+    const txt=d.content?.[0]?.text||'';
+    const blocos=txt.split('---').filter(b=>b.trim());
+    const el=document.getElementById('criar-angulos');
+    el.innerHTML='';
+    blocos.forEach((b,i)=>{
+      const nomeMatch=b.match(/ÂNGULO \d+:\s*(.+)/i);
+      const ganchoMatch=b.match(/GANCHO:\s*(.+)/i);
+      const historiaMatch=b.match(/HISTÓRIA:\s*([\s\S]+?)(?=VIRADA:|$)/i);
+      const viradaMatch=b.match(/VIRADA:\s*(.+)/i);
+      if(!nomeMatch)return;
+      const div=document.createElement('div');
+      div.style.cssText='padding:12px;background:var(--dark3);border:.5px solid var(--border);border-radius:10px;cursor:pointer';
+      div.innerHTML=`
+        <div style="font-size:12px;font-weight:800;color:var(--orange);margin-bottom:4px">${nomeMatch[1].trim()}</div>
+        ${ganchoMatch?`<div style="font-size:12px;color:var(--text);margin-bottom:3px">🎯 <b>Gancho:</b> ${ganchoMatch[1].trim()}</div>`:''}
+        ${historiaMatch?`<div style="font-size:11px;color:var(--text2);margin-bottom:3px">📖 ${historiaMatch[1].trim().replace(/\n/g,' ')}</div>`:''}
+        ${viradaMatch?`<div style="font-size:11px;color:var(--green)">🔄 ${viradaMatch[1].trim()}</div>`:''}
+      `;
+      div.onclick=()=>{
+        document.querySelectorAll('#criar-angulos > div').forEach(d=>d.style.borderColor='var(--border)');
+        div.style.borderColor='var(--orange)';
+        anguloEscolhido=b;
+        toast('✓ Ângulo selecionado!');
+      };
+      el.appendChild(div);
+    });
+  }catch(err){toast('❌ Erro: '+err.message);}
+  btn.disabled=false;btn.textContent='✨ Sugerir ângulos';
+}
+
+async function gerarDoChat(){
+  const contexto=document.getElementById('criar-contexto').textContent;
+  if(!contexto||contexto.includes('Nenhuma')){toast('⚠️ Vai na aba Conversar primeiro!');return;}
+  if(!anguloEscolhido){toast('⚠️ Escolhe um ângulo antes de gerar!');return;}
+
+  const box=document.getElementById('criar-result-box');
+  const content=document.getElementById('criar-result-content');
+  const title=document.getElementById('criar-result-title');
+  box.style.display='block';
+  content.textContent='⏳ Gerando roteiro...';
+  title.textContent='Roteiro '+criarFormat.toUpperCase();
+
+  const ctaTextos={
+    seguir:'Me segue aqui. Todo dia eu mostro que aprender italiano é possível, em qualquer idade, do jeito certo.',
+    comentario:'Comenta aqui embaixo com uma palavra relacionada ao tema. Adoro saber que você chegou até aqui!',
+    link:'Se você quer dar o primeiro passo do jeito certo, tem um link aqui na bio. Clica lá!',
+    fluxo:'Comenta a palavra-chave aqui embaixo que eu te mando mais no seu direct.'
+  };
+
+  const prompt=criarFormat==='reels'?
+  `Você é especialista em conteúdo viral pedagógico para o Silvano Formentin, professor de italiano.
+
+CONTEXTO DA CONVERSA: ${contexto}
+
+ÂNGULO ESCOLHIDO: ${anguloEscolhido}
+
+CTA: ${ctaTextos[criarCTA]}
+
+Gere um roteiro de Reels completo nas 8 camadas do funil pedagógico viral:
+
+1. GANCHO VISUAL: instrução de cena + prompt de imagem em inglês para IA
+2. DUAS OPÇÕES DE GANCHO ESCRITO (Opção A e Opção B)
+3-8. ROTEIRO FALADO CORRIDO (280-350 palavras):
+- Gancho falado + curiosidade (ritmo de jornalista)
+- Contexto Ponto A: história completa, 40% do roteiro, SEM mencionar italiano
+- [RE-HOOK: "e a parte mais importante ainda não apareceu"]
+- Correlação Ponto B: virada que conecta ao italiano
+- Ensino + caso real de aluno
+- Moral: frase que devolve confiança à mulher 50+ com descendência italiana
+- Autoridade + CTA acima
+
+TOM DO SILVANO: sala de casa, "repete comigo", exemplos da nona, "do jeito certo", "qualquer idade". NUNCA gramática, NUNCA travessão.`
+  :
+  `Você é especialista em conteúdo viral pedagógico para o Silvano Formentin, professor de italiano.
+
+CONTEXTO DA CONVERSA: ${contexto}
+
+ÂNGULO ESCOLHIDO: ${anguloEscolhido}
+
+CTA: ${ctaTextos[criarCTA]}
+
+Gere um Carrossel completo nas 7 camadas:
+
+SLIDE 1: Gancho Escrito + Gancho Visual
+- Duas opções de texto (Opção A e B)
+- Prompt de imagem em inglês
+
+SLIDE 2: 2° Gancho (segura quem passou o slide 1)
+
+SLIDE 3: Contexto Ponto A + imagem (história completa, SEM italiano ainda)
+
+SLIDE 4: Correlação Ponto B (virada para o italiano)
+
+SLIDE 5: Ensino + caso real de aluno
+
+SLIDE 6: Moral (frase que devolve confiança à mulher 50+ com descendência)
+
+SLIDE 7: Autoridade + CTA
+
+Para cada slide: texto do slide + direção visual + prompt de imagem em inglês.
+
+TOM DO SILVANO: sala de casa, próximo, "do jeito certo", "qualquer idade". NUNCA gramática, NUNCA travessão.
+
+No final, lista todos os prompts de imagem numerados para gerar no GPT.`;
+
+  try{
+    const r=await fetch('/.netlify/functions/gerar',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt,max_tokens:1500})
+    });
+    const d=await r.json();
+    if(d.error)throw new Error(d.error.message);
+    const txt=d.content?.[0]?.text||'Erro ao gerar.';
+    content.textContent=txt;
+    document.getElementById('criar-img-btn').style.display='block';
+    box.scrollIntoView({behavior:'smooth'});
+  }catch(err){
+    content.textContent='❌ Erro: '+err.message;
+  }
+}
+
+function copiarCriar(){
+  const txt=document.getElementById('criar-result-content').textContent;
+  navigator.clipboard.writeText(txt).then(()=>toast('✓ Copiado!'));
+}
+
+function abrirImagemCriar(){
+  const txt=document.getElementById('criar-result-content').textContent;
+  const url=criarFormat==='carrossel'?GPT_URLS.carrossel:GPT_URLS.reels;
+  navigator.clipboard.writeText(txt).then(()=>{
+    setTimeout(()=>window.open(url,'_blank'),300);
+  });
+}
+
+
 // ── CHAT ──
 const CHAT_HISTORY=[];
-const CHAT_SYSTEM=`Você é o assistente de conteúdo do Silvano Formentin, professor da maior escola de italiano da América Latina.
+const CHAT_SYSTEM=`Você é assistente de conteúdo do Silvano Formentin, professor da maior escola de italiano da América Latina.
 
-CONTEXTO DO NEGÓCIO:
+CONTEXTO RÁPIDO:
 - Nicho: ensino de italiano
-- Avatar: mulher 50+, descendência italiana, sonho antigo de aprender, já tentou antes com gramática e desistiu
-- Inimigo em comum: método tradicional/gramática logo de cara
-- Transformação: descobrir que o problema nunca foi ela, foi o método
-- Posicionamento do Silvano: não é professor distante, é quem fez ela sonhar de novo
-- Tom: sala de casa, acolhedor, firme, humor natural, "repete comigo", exemplos da nona
+- Avatar: mulher 50+, descendência italiana, sonho antigo, já tentou com gramática e desistiu
+- Método: sem gramática, frases do cotidiano, prática real
+- Tom do Silvano: sala de casa, acolhedor, "repete comigo", exemplos da nona
+- Formato de conteúdo: funil pedagógico viral — começa num assunto universal (Itália, Papa, catolicismo, descendência, estilo de vida italiano) e transiciona para o nicho de italiano
 
-MÉTODO DE CONTEÚDO (palestra JPV/João Estecca):
-- Formato pedagógico viral: começa num assunto universal (Itália, Papa/Vaticano, catolicismo, descendência italiana, estilo de vida italiano, hack de aprendizado)
-- Faz transição pedagógica para o nicho de italiano
-- O assunto universal é a porta de entrada para quem não te segue ainda
-- A história é o que retém, o ensino é o que converte, a moral é o que faz comprar
-- Viralização pedagógica, não viralização por sorte ou dancinha
-
-ESTRUTURA DE REELS (8 camadas):
-1. Gancho Visual — instrução de cena para os primeiros 2 segundos
-2. Gancho Escrito — duas opções de texto de tela (A e B)
-3. Gancho Falado + Curiosidade — primeiras frases, ritmo de jornalista
-4. Contexto (Ponto A) — história completa do assunto universal, 40% do roteiro, não menciona italiano ainda
-5. Correlação (Ponto B) — virada que conecta o assunto universal ao italiano
-6. Ensino + Embasamento — o princípio pedagógico com caso real de aluno
-7. Moral da História — frase memorável que devolve confiança ao avatar
-8. Autoridade + CTA — Silvano como quem viveu isso na prática + chamada para ação
-
-ESTRUTURA DE CARROSSEL (7 camadas):
-1. Gancho Escrito + Visual (slide 1)
-2. 2° Gancho Escrito + Visual (slide 2) — segura quem passou o primeiro
-3. Contexto Ponto A + Visual (slide 3)
-4. Correlação Ponto B (slide 4)
-5. Ensino + Embasamento (slide 5)
-6. Moral da História (slide 6)
-7. Autoridade + CTA (slide 7)
-
-GANCHOS DE RETENÇÃO — inserir a cada ~1 minuto:
-"e a parte mais importante ainda não apareceu" / "só que o que ninguém está falando é isso" / "mas existe uma camada mais profunda nessa história" / "e aqui entra a parte que muda tudo" / "só que o mais impressionante nem é isso"
-
-CTAs disponíveis:
-- Seguir: "Me segue aqui. Todo dia eu mostro que aprender italiano é possível, em qualquer idade, do jeito certo."
-- Comentário orgânico: palavra-chave ligada ao tema (Italia, Nona, Sogno, Viagem, Raízes)
-- Link na bio: "Se você quer dar o primeiro passo do jeito certo, tem um link aqui na bio."
-- Comentário com fluxo: palavra-chave que ativa chatbot (usar com moderação)
-
-TOM DO SILVANO:
-- NUNCA: linguagem técnica, gramática como ponto de partida, formalismo, termos em inglês, "jornada", "propósito", "vibração"
-- SEMPRE: sala de casa, "repete comigo", exemplos da nona/família/viagem, "do jeito certo", "qualquer idade", acolhimento com firmeza
-- Frases-gatilho: "Italiano é pra todo mundo", "Não tem idade pra aprender", "Errar faz parte", "Olha só que fácil"
-
-QUANDO GERAR ROTEIRO:
-Se o usuário disser "gera o roteiro", "cria o carrossel", "gera o reels" ou similar, gere o roteiro completo no formato correto com:
-- Gancho Visual com prompt de imagem em inglês
-- Duas opções de gancho escrito
-- Roteiro completo passado pelo tom de voz do Silvano
-- Para carrossel: instrução de imagem por slide + prompt GPT de imagens
-- Ganchos de retenção inseridos naturalmente
-
-Você pode conversar livremente sobre ideias, analisar assuntos, sugerir ângulos, discutir o que está em alta. Seja um parceiro de conteúdo inteligente, não só um gerador de texto.`;
+Converse livremente sobre ideias de conteúdo. Quando o usuário pedir para gerar roteiro, avise que vai gerar e pergunte: é Reels ou Carrossel? Qual o CTA (seguir / comentário / link na bio)?`;
 
 async function enviarChat(){
   const input=document.getElementById('chat-input');
@@ -1394,8 +1585,8 @@ async function enviarChat(){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         system:CHAT_SYSTEM,
-        messages:CHAT_HISTORY,
-        max_tokens:3000
+        messages:CHAT_HISTORY.slice(-4),
+        max_tokens:1200
       })
     });
     const d=await r.json();
